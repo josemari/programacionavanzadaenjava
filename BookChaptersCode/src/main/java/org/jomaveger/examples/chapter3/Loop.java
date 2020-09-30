@@ -9,7 +9,7 @@ public class Loop {
 		Contract.require(v != null);
 		
 		int i = 0;
-		boolean isSorted = true; 
+		boolean isSorted = true;
 		while (i < v.length - 1 && isSorted) {
 			
 			Contract.check(v.length - 1 - i >= 0); 
