@@ -2,7 +2,7 @@ package org.jomaveger.structures;
 
 import static org.junit.Assert.*;
 
-import com.google.java.contract.PreconditionError;
+import org.jomaveger.lang.dbc.exceptions.ContractViolationException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class LinkedQueueTest {
         assertEquals((Integer)0, q.size());
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testEnqueuePrecondition() {
         q.enqueue(null);
     }
@@ -56,7 +56,7 @@ public class LinkedQueueTest {
     	assertEquals((Integer)(1 + oldSize), q.size());
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testDequeuePrecondition() {
         q.dequeue();
     }
@@ -75,7 +75,7 @@ public class LinkedQueueTest {
         assertEquals((Integer)(oldSize - 1), q.size());
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testFrontPrecondition() {
         q.front();
     }

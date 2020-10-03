@@ -1,10 +1,9 @@
 package org.jomaveger.structures;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import com.google.java.contract.PreconditionError;
-import org.jomaveger.structures.IStack;
-import org.jomaveger.structures.LinkedStack;
+import org.jomaveger.lang.dbc.exceptions.ContractViolationException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +27,7 @@ public class LinkedStackTest {
         assertEquals((Integer)0, stack.size());
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testPushPrecondition() {
         stack.push(null);
     }
@@ -58,7 +57,7 @@ public class LinkedStackTest {
         assertEquals((Integer)(1 + oldSize), stack.size());
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testPopPrecondition() {
         stack.pop();
     }
@@ -77,7 +76,7 @@ public class LinkedStackTest {
         assertEquals((Integer)(oldSize - 1), stack.size());
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testPeekPrecondition() {
         stack.peek();
     }

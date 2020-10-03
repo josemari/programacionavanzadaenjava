@@ -7,11 +7,8 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 
 import org.jomaveger.lang.DeepCloneable;
+import org.jomaveger.lang.dbc.Contract;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Invariant;
-
-@Invariant("checkInvariant()")
 public class LinkedList<T> implements IList<T>, Serializable {
 
     private Integer size;
@@ -19,46 +16,80 @@ public class LinkedList<T> implements IList<T>, Serializable {
     private DoublyLinkedNode<T> head;
     private DoublyLinkedNode<T> tail;
 
-    @Ensures("isEmpty()")
     public LinkedList() {
         this.head = null;
         this.tail = null;
         this.size = 0;
         this.modCount = 0;
+        
+        Contract.ensure(isEmpty());
+        Contract.invariant(checkInvariant());
     }
 
     @Override
     public void addFirst(final T elem) {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(elem != null);
+    	int oldSize = size();
+    	
         this.head = new DoublyLinkedNode<T>(elem, this.head, null);
         if (this.tail == null)
             this.tail = this.head;
         this.size++;
         this.modCount++;
+        
+        Contract.ensure((getFirst() == elem) && (size() == (oldSize + 1)));
+        Contract.invariant(checkInvariant());
     }
 
     @Override
     public void addLast(final T elem) {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(elem != null);
+    	int oldSize = size();
+    	
         this.tail = new DoublyLinkedNode<T>(elem, null, this.tail);
         if (this.head == null)
             this.head = this.tail;
         this.size++;
         this.modCount++;
+        
+        Contract.ensure((getLast() == elem) && (size() == (oldSize + 1)));
+        Contract.invariant(checkInvariant());
     }
 
     @Override
     public T getFirst() {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(!isEmpty());
+    	int oldSize = size();
+    	
     	T elem = this.head.getElem();
+    	
+    	Contract.ensure((elem == get(0)) && (size() == oldSize));
+    	Contract.invariant(checkInvariant());
         return elem;
     }
 
     @Override
     public T getLast() {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(!isEmpty());
+    	int oldSize = size();
+    	
     	T elem = this.tail.getElem();
+    	
+    	Contract.ensure((elem == get(size() - 1)) && (size() == oldSize));
+    	Contract.invariant(checkInvariant());
         return elem;
     }
 
     @Override
     public void removeFirst() {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(!isEmpty());
+    	int oldSize = size();
+    	
         DoublyLinkedNode<T> temp = this.head;
         this.head = this.head.getNext();
         if (this.head != null) {
@@ -69,10 +100,17 @@ public class LinkedList<T> implements IList<T>, Serializable {
         temp.setNext(null);
         this.size--;
         this.modCount++;
+        
+        Contract.ensure(size() == oldSize - 1);
+    	Contract.invariant(checkInvariant());
     }
 
     @Override
     public void removeLast() {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(!isEmpty());
+    	int oldSize = size();
+    	
         DoublyLinkedNode<T> temp = this.tail;
         this.tail = this.tail.getPrevious();
         if (this.tail == null) {
@@ -82,20 +120,34 @@ public class LinkedList<T> implements IList<T>, Serializable {
         }
         this.size--;
         this.modCount++;
+        
+        Contract.ensure(size() == oldSize - 1);
+    	Contract.invariant(checkInvariant());
     }
 
     @Override
     public Boolean contains(final T elem) {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(elem != null);
+    	int oldSize = size();
+    	
         DoublyLinkedNode<T> finger = this.head;
         while ((finger != null) && (!finger.getElem().equals(elem))) {
             finger = finger.getNext();
         }
         boolean condition = finger != null;
+        
+        Contract.ensure(size() == oldSize);
+    	Contract.invariant(checkInvariant());
         return condition;
     }
 
     @Override
     public void remove(final T elem) {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(elem != null);
+    	int oldSize = size();
+    	
     	DoublyLinkedNode<T> finger = this.head;
         while (finger != null && !finger.getElem().equals(elem)) {
             finger = finger.getNext();
@@ -114,39 +166,65 @@ public class LinkedList<T> implements IList<T>, Serializable {
             this.size--;
             this.modCount++;
         }
+        
+        Contract.ensure(!contains(elem) || size() == (oldSize - 1));
+    	Contract.invariant(checkInvariant());
     }
 
     @Override
     public void clear() {
+    	Contract.invariant(checkInvariant());
+    	
         this.head = null;
         this.tail = null;
         this.size = 0;
         this.modCount++;
+        
+        Contract.ensure(isEmpty());
+    	Contract.invariant(checkInvariant());
     }
 
     @Override
     public T get(Integer index) {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(!isEmpty() && (index >= 0) && (index <= (size() - 1)));
+    	int oldSize = size();
+    	
         DoublyLinkedNode<T> finger = this.head;
         while (index > 0) {
             finger = finger.getNext();
             index--;
         }
         T elem = finger.getElem();
+        
+        Contract.ensure((elem != null) && (size() == oldSize));
+    	Contract.invariant(checkInvariant());
         return elem;
     }
 
     @Override
     public void set(Integer index, final T elem) {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(!isEmpty() && (elem != null) && (index >= 0) && (index <= (size() - 1)));
+    	int oldSize = size();
+    	
         DoublyLinkedNode<T> finger = this.head;
         while (index > 0) {
             finger = finger.getNext();
             index--;
         }
         finger.setElem(elem);
+        
+        Contract.ensure(size() == oldSize);
+    	Contract.invariant(checkInvariant());
     }
 
     @Override
     public void add(Integer index, final T elem) {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(!isEmpty() && (elem != null) && (index >= 0) && (index <= size()));
+    	int oldSize = size();
+    	
         if (index == 0)
             this.addFirst(elem);
         else if (index == this.size())
@@ -169,10 +247,17 @@ public class LinkedList<T> implements IList<T>, Serializable {
             before.setNext(current);
             after.setPrevious(current);
         }
+        
+        Contract.ensure((size() == (oldSize + 1)) && (contains(elem) == true));
+    	Contract.invariant(checkInvariant());
     }
 
     @Override
     public void remove(Integer index) {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(!isEmpty() && (index >= 0) && (index <= (size() - 1)));
+    	int oldSize = size();
+
         if (index == 0)
             this.removeFirst();
         else if (index == this.size() - 1)
@@ -192,10 +277,17 @@ public class LinkedList<T> implements IList<T>, Serializable {
             this.size--;
             this.modCount++;
         }
+        
+        Contract.ensure(size() == (oldSize - 1));
+    	Contract.invariant(checkInvariant());
     }
 
     @Override
     public Integer indexOf(final T elem) {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(elem != null);
+    	int oldSize = size();
+    	
         Integer i = 0;
         DoublyLinkedNode<T> finger = head;
         Integer index = 0;
@@ -211,11 +303,18 @@ public class LinkedList<T> implements IList<T>, Serializable {
         } else {
             index = i;
         }
+        
+        Contract.ensure((size() == oldSize) && ((index == -1) || (contains(elem))));
+    	Contract.invariant(checkInvariant());
         return index;
     }
 
     @Override
     public Integer lastIndexOf(final T elem) {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(elem != null);
+    	int oldSize = size();
+    	
         Integer i = this.size() - 1;
         DoublyLinkedNode<T> finger = this.tail;
         Integer index = 0;
@@ -231,29 +330,46 @@ public class LinkedList<T> implements IList<T>, Serializable {
         } else {
             index = i;
         }
+        
+        Contract.ensure((size() == oldSize) && ((index == -1) || (contains(elem))
+        		&& ((index == -1) || (index >= indexOf(elem)))));
+    	Contract.invariant(checkInvariant());
         return index;
     }
 
     @Override
     public Boolean isEmpty() {
+    	Contract.invariant(checkInvariant());
+    	
         Boolean condition = this.size == 0;
+        
+        Contract.ensure(condition == (this.size == 0));
+    	Contract.invariant(checkInvariant());
         return condition;
     }
 
     @Override
     public Integer size() {
+    	Contract.invariant(checkInvariant());
+    	
         Integer size = this.size;
+        
+        Contract.ensure(this.size >= 0);
+        Contract.invariant(checkInvariant());
         return size;
     }
     
     @Override
-    public IList<T> deepCopy() {  	
+    public IList<T> deepCopy() {
+    	Contract.invariant(checkInvariant());
     	IList<T> deepCopy;
         try {
         	deepCopy = DeepCloneable.deepCopy(this);
         } catch (Exception e) {
         	deepCopy = new LinkedList<>();
         }
+        Contract.ensure(deepCopy.equals(this) || deepCopy.isEmpty());
+        Contract.invariant(checkInvariant());
         return deepCopy;
     }
 

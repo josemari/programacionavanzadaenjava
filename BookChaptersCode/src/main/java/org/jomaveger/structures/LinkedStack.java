@@ -4,51 +4,79 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import org.jomaveger.lang.DeepCloneable;
+import org.jomaveger.lang.dbc.Contract;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Invariant;
-
-@Invariant("checkInvariant()")
 public class LinkedStack<T> implements IStack<T>, Serializable {
 
     private LinkedNode<T> top;
     private Integer size;
 
-    @Ensures("isEmpty()")
     public LinkedStack() {
         this.top = null;
         this.size = 0;
+        
+        Contract.ensure(isEmpty());
+        Contract.invariant(checkInvariant());
     }
 
     @Override
-    public void push(final T elem) {    	
+    public void push(final T elem) {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(elem != null);
+		int oldSize = size();
+		
         LinkedNode<T> newNode = new LinkedNode<T>(elem);
         newNode.setNext(this.top);
         this.top = newNode;
         this.size++;
+        
+        Contract.ensure((peek() == elem) && !isEmpty() && (size() == oldSize + 1));
+        Contract.invariant(checkInvariant());
     }
 
     @Override
     public void pop() {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(!isEmpty());
+		int oldSize = size();
+		
         this.top = this.top.getNext();
         this.size--;
+        
+        Contract.ensure(size() == oldSize - 1);
+        Contract.invariant(checkInvariant());
     }
 
     @Override
     public T peek() {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(!isEmpty());
+    	int oldSize = size();
+    	
         T elem = this.top.getElem();
+        
+        Contract.ensure(size() == oldSize);
+        Contract.invariant(checkInvariant());
         return elem;
     }
 
     @Override
     public Boolean isEmpty() {
+    	Contract.invariant(checkInvariant());
         Boolean condition = this.size == 0;
+        
+        Contract.ensure(condition == (this.size == 0));
+        Contract.invariant(checkInvariant());
         return condition;
     }
 
     @Override
     public Integer size() {
-        Integer size = this.size;        
+    	Contract.invariant(checkInvariant());
+        Integer size = this.size;
+        
+        Contract.ensure(this.size >= 0);
+        Contract.invariant(checkInvariant());
         return size;
     }
 
@@ -107,12 +135,15 @@ public class LinkedStack<T> implements IStack<T>, Serializable {
 
     @Override
     public IStack<T> deepCopy() {
+    	Contract.invariant(checkInvariant());
     	IStack<T> deepCopy;
         try {
             deepCopy = DeepCloneable.deepCopy(this);
         } catch (Exception e) {
             deepCopy = new LinkedStack<>();
         }
+        Contract.ensure(deepCopy.equals(this) || deepCopy.isEmpty());
+        Contract.invariant(checkInvariant());
         return deepCopy;
     }
     

@@ -4,26 +4,29 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import org.jomaveger.lang.DeepCloneable;
+import org.jomaveger.lang.dbc.Contract;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Invariant;
-
-@Invariant("checkInvariant()")
 public class LinkedQueue<T> implements IQueue<T>, Serializable {
 
     private LinkedNode<T> first;
     private LinkedNode<T> last;
     private Integer size;
 
-    @Ensures("isEmpty()")
     public LinkedQueue() {
         this.first = null;
         this.last = null;
         this.size = 0;
+        
+        Contract.ensure(isEmpty());
+        Contract.invariant(checkInvariant());
     }
 
     @Override
     public void enqueue(final T elem) {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(elem != null);
+    	int oldSize = size();
+    	
         LinkedNode<T> oldLast = this.last;
         this.last = new LinkedNode<>(elem);
         if (this.size == 0)
@@ -31,42 +34,72 @@ public class LinkedQueue<T> implements IQueue<T>, Serializable {
         else
             oldLast.setNext(this.last);
         this.size++;
+        
+        Contract.ensure((!(size() == 1) || (front() == elem)) && (size() == (oldSize + 1)));
+        Contract.invariant(checkInvariant());
     }
 
     @Override
-    public void dequeue() {    	
+    public void dequeue() {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(size > 0);
+    	int oldSize = size();
+    	
         this.first = this.first.getNext();
         this.size--;
         if (this.size == 0)
             this.last = null;
+        
+        Contract.ensure(size() == (oldSize - 1));
+        Contract.invariant(checkInvariant());
     }
 
     @Override
-    public T front() {    	
+    public T front() {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(size > 0);
+    	int oldSize = size();
+    	
     	T elem = this.first.getElem();
+    	
+    	Contract.ensure(size() == oldSize);
+    	Contract.invariant(checkInvariant());
         return elem;
     }
 
     @Override
     public Boolean isEmpty() {
-    	Boolean condition = this.size == 0;   
+    	Contract.invariant(checkInvariant());
+    	
+    	Boolean condition = this.size == 0;
+    	
+    	Contract.ensure(condition == (this.size == 0));
+    	Contract.invariant(checkInvariant());
         return condition;
     }
 
     @Override
     public Integer size() {
+    	Contract.invariant(checkInvariant());
+    	
         Integer size = this.size;
+        
+        Contract.ensure(this.size >= 0);
+        Contract.invariant(checkInvariant());
         return size;
     }
 
     @Override
     public IQueue<T> deepCopy() {
+    	Contract.invariant(checkInvariant());
     	IQueue<T> deepCopy;
         try {
         	deepCopy = DeepCloneable.deepCopy(this);
         } catch (Exception e) {
         	deepCopy = new LinkedQueue<>();
         }
+        Contract.ensure(deepCopy.equals(this) || deepCopy.isEmpty());
+        Contract.invariant(checkInvariant());
         return deepCopy;
     }
 

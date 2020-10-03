@@ -1,6 +1,6 @@
 package org.jomaveger.structures;
 
-import com.google.java.contract.PreconditionError;
+import org.jomaveger.lang.dbc.exceptions.ContractViolationException;
 import static org.junit.Assert.*;
 
 import org.junit.After;
@@ -30,7 +30,7 @@ public class LinkedDequeTest {
         assertEquals((Integer)0, d.size());
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testAddFirstPrecondition() {
         d.addFirst(null);
     }
@@ -47,7 +47,7 @@ public class LinkedDequeTest {
         assertEquals((Integer)(1 + oldSize), d.size());
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testAddLastPrecondition() {
         d.addLast(null);
     }
@@ -64,7 +64,7 @@ public class LinkedDequeTest {
         assertEquals((Integer)(1 + oldSize), d.size());
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testGetFirstPrecondition() {
         d.getFirst();
     }
@@ -79,7 +79,7 @@ public class LinkedDequeTest {
         assertEquals((Integer)(oldSize), d.size());
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testGetLastPrecondition() {
         d.getLast();
     }
@@ -94,7 +94,7 @@ public class LinkedDequeTest {
         assertEquals((Integer)(oldSize), d.size());
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testRemoveFirstPrecondition() {
         d.removeFirst();
     }
@@ -110,7 +110,7 @@ public class LinkedDequeTest {
         assertEquals((Integer)(oldSize - 1), d.size());
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testRemoveLastPrecondition() {
         d.removeLast();
     }
@@ -126,7 +126,7 @@ public class LinkedDequeTest {
         assertEquals((Integer)(oldSize - 1), d.size());
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testContainsPrecondition() {
         d.contains(null);
     }

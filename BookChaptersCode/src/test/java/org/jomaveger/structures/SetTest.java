@@ -2,9 +2,8 @@ package org.jomaveger.structures;
 
 import static org.junit.Assert.*;
 
-import com.google.java.contract.PreconditionError;
-import org.jomaveger.structures.ISet;
-import org.jomaveger.structures.Set;
+import org.jomaveger.lang.dbc.exceptions.ContractViolationException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +38,7 @@ public class SetTest {
         assertTrue(set.isEmpty());
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testmakeUnitSetPrecondition() {
         set.makeUnitSet(null);
     }
@@ -59,7 +58,7 @@ public class SetTest {
         assertTrue(set.isEmpty());
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testAddPrecondition() {
         set.add(null);
     }
@@ -78,7 +77,7 @@ public class SetTest {
         assertTrue(set.contains(nueve));
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testContainsPrecondition() {
         set.contains(null);
     }
@@ -94,7 +93,7 @@ public class SetTest {
         assertEquals((Integer) (oldCardinal), set.cardinal());
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testRemovePrecondition() {
         set.remove(null);
     }
@@ -111,7 +110,7 @@ public class SetTest {
         assertEquals((Integer) (oldCardinal - 1), set.cardinal());
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testIsSubsetPrecondition() {
         set.isSubset(null);
     }
@@ -138,7 +137,7 @@ public class SetTest {
         assertEquals((Integer) (oldCardinal), set.cardinal());
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testUnionPrecondition() {
         set.union(null);
     }
@@ -174,7 +173,7 @@ public class SetTest {
         assertTrue(set.contains(seis));
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testIntersectionPrecondition() {
         set.intersection(null);
     }
@@ -206,7 +205,7 @@ public class SetTest {
         assertTrue(set.contains(nueve));
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testDifferencePrecondition() {
         set.difference(null);
     }

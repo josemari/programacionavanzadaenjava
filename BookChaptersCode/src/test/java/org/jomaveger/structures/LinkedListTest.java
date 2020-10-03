@@ -2,9 +2,7 @@ package org.jomaveger.structures;
 
 import static org.junit.Assert.*;
 
-import com.google.java.contract.PreconditionError;
-import org.jomaveger.structures.IList;
-import org.jomaveger.structures.LinkedList;
+import org.jomaveger.lang.dbc.exceptions.ContractViolationException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +30,7 @@ public class LinkedListTest {
         assertEquals((Integer)0, list.size());
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testAddFirstPrecondition() {
         list.addFirst(null);
     }
@@ -49,7 +47,7 @@ public class LinkedListTest {
         assertEquals((Integer)(1 + oldSize), list.size());
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testAddLastPrecondition() {
         list.addLast(null);
     }
@@ -66,7 +64,7 @@ public class LinkedListTest {
         assertEquals((Integer)(1 + oldSize), list.size());
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testGetFirstPrecondition() {
         list.getFirst();
     }
@@ -82,7 +80,7 @@ public class LinkedListTest {
         assertEquals((Integer)(oldSize), list.size());
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testGetLastPrecondition() {
         list.getLast();
     }
@@ -98,7 +96,7 @@ public class LinkedListTest {
         assertEquals((Integer)(oldSize), list.size());
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testRemoveFirstPrecondition() {
         list.removeFirst();
     }
@@ -114,7 +112,7 @@ public class LinkedListTest {
         assertEquals((Integer)(oldSize - 1), list.size());
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testRemoveLastPrecondition() {
         list.removeLast();
     }
@@ -130,7 +128,7 @@ public class LinkedListTest {
         assertEquals((Integer)(oldSize - 1), list.size());
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testContainsPrecondition() {
         list.contains(null);
     }
@@ -147,7 +145,7 @@ public class LinkedListTest {
         assertEquals((Integer)(oldSize), list.size());
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testRemovePrecondition() {
         IList<String> slist = new LinkedList<>();
         slist.remove((String)null);
@@ -176,7 +174,7 @@ public class LinkedListTest {
         assertTrue(list.isEmpty());
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testGetPrecondition() {
     	list.get(0);
     }
@@ -194,22 +192,22 @@ public class LinkedListTest {
         assertEquals(siete, list.get(3));
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testSetPrecondition1() {
     	list.set(0, siete);
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testSetPrecondition2() {
     	list.set(0, null);
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testSetPrecondition3() {
     	list.set(-1, tres);
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testSetPrecondition4() {
     	list.addLast(siete);
         list.addLast(tres);
@@ -231,22 +229,22 @@ public class LinkedListTest {
         assertEquals((Integer)(oldSize), list.size());
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testAddPrecondition1() {
     	list.add(0, siete);
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testAddPrecondition2() {
     	list.add(0, null);
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testAddPrecondition3() {
     	list.add(-1, tres);
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testAddPrecondition4() {
     	list.addLast(siete);
         list.addLast(tres);
@@ -269,19 +267,19 @@ public class LinkedListTest {
         assertTrue(list.contains(nueve));
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testRemovePrecondition1() {
     	IList<String> slist = new LinkedList<>();
         slist.remove((Integer)0);
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testRemovePrecondition2() {
     	IList<String> slist = new LinkedList<>();
         slist.remove((Integer)(-1));
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testRemovePrecondition3() {
     	IList<String> slist = new LinkedList<>();
     	slist.addLast("Han");
@@ -302,7 +300,7 @@ public class LinkedListTest {
         assertEquals((Integer)(oldSize - 1), slist.size());
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testIndexOfPrecondition() {
     	list.indexOf(null);
     }
@@ -332,7 +330,7 @@ public class LinkedListTest {
         assertTrue(list.contains(siete));
     }
     
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testLastIndexOfPrecondition() {
     	list.indexOf(null);
     }
