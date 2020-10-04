@@ -22,7 +22,7 @@ public class ProducerConsumerSimulator {
 
         BlockingQueue<File> queue = new ArrayBlockingQueue<>(25);
         
-        File root = new File("C:\\Java\\JSE8.201x64\\src");
+        File root = new File(System.getProperty("java.home") + "/src");
 
         for (int i = 0; i < N_PRODUCERS - 1; i++) {
             new Thread(new FileExplorerProducer(queue, root,
