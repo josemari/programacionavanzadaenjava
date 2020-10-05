@@ -1,6 +1,6 @@
 package org.jomaveger.structures;
 
-import com.google.java.contract.PreconditionError;
+import org.jomaveger.lang.dbc.exceptions.ContractViolationException;
 import static org.junit.Assert.*;
 
 import org.junit.After;
@@ -27,12 +27,12 @@ public class LinkedTableTest {
         assertTrue(table.isEmpty());
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testSetPrecondition1() {
         table.set(null, 100);
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testSetPrecondition2() {
         table.set("Luke", null);
     }
@@ -56,7 +56,7 @@ public class LinkedTableTest {
         assertEquals((Integer) (oldKeyList.size() + 1), table.keyList().size());
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testGetPrecondition() {
         table.get(null);
     }
@@ -82,7 +82,7 @@ public class LinkedTableTest {
         assertTrue(!table.contains("Yoda"));
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testRemovePrecondition() {
         table.remove(null);
     }
@@ -118,7 +118,7 @@ public class LinkedTableTest {
         assertTrue(table.isEmpty());
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testContainsPrecondition() {
         table.contains(null);
     }

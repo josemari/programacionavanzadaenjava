@@ -1,27 +1,31 @@
 package org.jomaveger.structures;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Invariant;
-import com.google.java.contract.Requires;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Iterator;
 import org.jomaveger.lang.DeepCloneable;
+import org.jomaveger.lang.dbc.Contract;
 
-@Invariant("checkInvariant()")
 public class Array<T> implements Serializable, Iterable<T> {
 
     private T[] array;
 
-    @Requires("size >= 0")
-    @Ensures("isEmpty() && (length() == size)")
     public Array(final Integer size) {
+    	Contract.require(size >= 0);
+    	
         array = (T[]) new Object[size];
+        
+        Contract.ensure(isEmpty() && (length() == size));
+        Contract.invariant(checkInvariant());
     }
 
-    @Ensures("result >= 0")
     public Integer length() {
+    	Contract.invariant(checkInvariant());
+    	
         Integer result = array.length;
+        
+        Contract.ensure(result >= 0);
+        Contract.invariant(checkInvariant());
         return result;
     }
 
@@ -42,27 +46,39 @@ public class Array<T> implements Serializable, Iterable<T> {
         return isEmpty;
     }
 
-    @Requires("index >= 0 && index <= (length() - 1)")
-    @Ensures("length() == old(length())")
     public T get(final Integer index) {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(index >= 0 && index <= (length() - 1));
+    	int oldLength = length();
+    	
         T elem = array[index];
+        
+        Contract.ensure(length() == oldLength);
+        Contract.invariant(checkInvariant());
         return elem;
     }
 
-    @Requires("index >= 0 && index <= (length() - 1)")
-    @Ensures("length() == old(length())")
     public void set(final T elem, final Integer index) {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(index >= 0 && index <= (length() - 1));
+    	int oldLength = length();
+    	
         array[index] = elem;
+        
+        Contract.ensure(length() == oldLength);
+        Contract.invariant(checkInvariant());
     }
 
-    @Ensures("result.equals(this) || result.isEmpty()")
     public Array<T> deepCopy() {
+    	Contract.invariant(checkInvariant());
         Array<T> deepCopy;
         try {
             deepCopy = DeepCloneable.deepCopy(this);
         } catch (Exception e) {
             deepCopy = new Array<>(this.length());
         }
+        Contract.ensure(deepCopy.equals(this) || deepCopy.isEmpty());
+        Contract.invariant(checkInvariant());
         return deepCopy;
     }
 

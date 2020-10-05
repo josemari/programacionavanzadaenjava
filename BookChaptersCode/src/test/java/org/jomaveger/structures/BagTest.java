@@ -1,6 +1,6 @@
 package org.jomaveger.structures;
 
-import com.google.java.contract.PreconditionError;
+import org.jomaveger.lang.dbc.exceptions.ContractViolationException;
 import static org.junit.Assert.*;
 
 import org.junit.After;
@@ -48,7 +48,7 @@ public class BagTest {
         assertTrue(bag.isEmpty());
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testAddPrecondition() {
         bag.add(null);
     }
@@ -69,7 +69,7 @@ public class BagTest {
         assertEquals((Integer) (oldCardinalDistinct), bag.cardinalDistinct());
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testMultiplicityPrecondition() {
         bag.multiplicity(null);
     }
@@ -89,7 +89,7 @@ public class BagTest {
         assertTrue(multiplicity <= bag.cardinalDistinct());
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testDeletePrecondition() {
         bag.delete(null);
     }
@@ -112,7 +112,7 @@ public class BagTest {
         assertEquals((Integer) (oldCardinalDistinct), bag.cardinalDistinct());
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testRemovePrecondition() {
         bag.remove(null);
     }
@@ -135,7 +135,7 @@ public class BagTest {
         assertEquals((Integer) (oldCardinalDistinct - 1), bag.cardinalDistinct());
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testUnionPrecondition() {
         bag.union(null);
     }
@@ -164,7 +164,7 @@ public class BagTest {
         assertTrue(bag.cardinalDistinct() <= oldCardinalDistinct + other.cardinalDistinct());
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testIntersectionPrecondition() {
         bag.union(null);
     }
@@ -193,7 +193,7 @@ public class BagTest {
         assertTrue(bag.cardinalDistinct() < oldCardinalDistinct + other.cardinalDistinct());
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testDifferencePrecondition() {
         bag.union(null);
     }

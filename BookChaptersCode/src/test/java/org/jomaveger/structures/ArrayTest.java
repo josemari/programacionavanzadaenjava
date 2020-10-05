@@ -1,6 +1,6 @@
 package org.jomaveger.structures;
 
-import com.google.java.contract.PreconditionError;
+import org.jomaveger.lang.dbc.exceptions.ContractViolationException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -14,7 +14,7 @@ public class ArrayTest {
     Integer cinco = 5;
     Integer nueve = 9;
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testDefaultConstructorPreconditon() {
         array = new Array<>(-1);
     }
@@ -27,13 +27,13 @@ public class ArrayTest {
         assertTrue(array.isEmpty());
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testGetPreconditon1() {
         array = new Array<>(5);
         array.get(-2);
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testGetPreconditon2() {
         array = new Array<>(5);
         array.get(array.length());
@@ -48,19 +48,19 @@ public class ArrayTest {
         assertEquals((Integer)5, array.length());
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testSetPreconditon1() {
         array = new Array<>(5);
         array.set(siete, -2);
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testSetPreconditon2() {
         array = new Array<>(5);
         array.set(siete, array.length());
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testSetPreconditon3() {
         array = new Array<>(5);
         array.set(null, array.length());

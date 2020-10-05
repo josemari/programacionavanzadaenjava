@@ -1,12 +1,10 @@
 package org.jomaveger.structures;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Invariant;
 import java.io.Serializable;
 import java.util.Objects;
 import org.jomaveger.lang.DeepCloneable;
+import org.jomaveger.lang.dbc.Contract;
 
-@Invariant("checkInvariant()")
 public class ClosedHashTable<K, V> implements ITable<K, V>, Serializable {
 
     private Integer m;
@@ -14,12 +12,10 @@ public class ClosedHashTable<K, V> implements ITable<K, V>, Serializable {
     private Double maxL;
     private Array<TableEntry<K, V>> table;
 
-    @Ensures("isEmpty()")
     public ClosedHashTable() {
         this(16, 0.6);
     }
 
-    @Ensures("isEmpty()")
     public ClosedHashTable(Integer m0, Double maxL) {
         this.maxL = maxL;
         this.m = m0;
@@ -28,10 +24,19 @@ public class ClosedHashTable<K, V> implements ITable<K, V>, Serializable {
             this.table.set(null, i);
         }
         this.n = 0;
+        
+        Contract.ensure(isEmpty());
+        Contract.invariant(checkInvariant());
     }
 
     @Override
     public void set(K key, V value) {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(key != null && value != null);
+    	int oldSize = size();
+    	boolean oldContains = contains(key);
+    	int oldKeyListSize = keyList().size();
+    	
         if ((1.0 * this.n) / this.m > this.maxL) {
             this.restructure();
         }
@@ -42,6 +47,10 @@ public class ClosedHashTable<K, V> implements ITable<K, V>, Serializable {
             setNewKey(key, value);
             this.n++;
         }
+        
+        Contract.ensure(!isEmpty() && (oldContains || size() == oldSize + 1)
+        		&& (!oldContains || oldKeyListSize == keyList().size()));
+        Contract.invariant(checkInvariant());
     }
 
     private void setNewValue(K key, V value) {
@@ -102,6 +111,12 @@ public class ClosedHashTable<K, V> implements ITable<K, V>, Serializable {
 
     @Override
     public V get(K key) {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(key != null);
+    	int oldSize = size();
+    	boolean oldContains = contains(key);
+    	int oldKeyListSize = keyList().size();
+    	
         int index = this.index(key);
         int d = this.step(key);
         V result = null;
@@ -112,11 +127,21 @@ public class ClosedHashTable<K, V> implements ITable<K, V>, Serializable {
         }
 
         result = (this.table.get(index) == null) ? null : this.table.get(index).getValue();
+        
+        Contract.ensure(size() == oldSize && (oldKeyListSize == keyList().size())
+        		&& ((!oldContains && result == null) || (oldContains && result != null)));
+        Contract.invariant(checkInvariant());
         return result;
     }
 
     @Override
     public void remove(K key) {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(key != null);
+    	int oldSize = size();
+    	boolean oldContains = contains(key);
+    	int oldKeyListSize = keyList().size();
+    	
         int index = this.index(key);
         int d = this.step(key);
 
@@ -130,19 +155,34 @@ public class ClosedHashTable<K, V> implements ITable<K, V>, Serializable {
             this.table.get(index).setKey(null);
             this.n--;
         }
+        
+        Contract.ensure((oldContains || oldKeyListSize == keyList().size())
+        		&& (oldContains || size() == oldSize)
+        		&& (!oldContains || oldKeyListSize - 1 == keyList().size())
+        		&& (!oldContains || size() == oldSize - 1));
+        Contract.invariant(checkInvariant());
     }
 
     @Override
     public void clear() {
+    	Contract.invariant(checkInvariant());
+    	
         this.table = new Array<>(this.m);
         for (int i = 0; i < this.table.length(); i++) {
             this.table.set(null, i);
         }
         this.n = 0;
+        
+        Contract.ensure(isEmpty());
+        Contract.invariant(checkInvariant());
     }
 
     @Override
     public Boolean contains(K key) {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(key != null);
+    	int oldSize = size();
+    	
         int index = this.index(key);
         int d = this.step(key);
 
@@ -153,40 +193,59 @@ public class ClosedHashTable<K, V> implements ITable<K, V>, Serializable {
         }
 
         Boolean contains = (this.table.get(index) == null) ? false : true;
+        
+        Contract.ensure(size() == oldSize);
+        Contract.invariant(checkInvariant());
         return contains;
     }
 
     @Override
     public Boolean isEmpty() {
+    	Contract.invariant(checkInvariant());
+    	
         Boolean condition = this.n == 0;
+        
+        Contract.ensure(condition == (size() == 0));
+    	Contract.invariant(checkInvariant());
         return condition;
     }
 
     @Override
     public Integer size() {
+    	Contract.invariant(checkInvariant());
+    	
         Integer size = this.n;
+        
+        Contract.ensure(size >= 0);
+        Contract.invariant(checkInvariant());
         return size;
     }
 
     @Override
     public ITable<K, V> deepCopy() {
+    	Contract.invariant(checkInvariant());
         ITable<K, V> deepCopy;
         try {
             deepCopy = DeepCloneable.deepCopy(this);
         } catch (Exception e) {
             deepCopy = new ClosedHashTable<>();
         }
+        Contract.ensure(deepCopy.equals(this) || deepCopy.isEmpty());
+        Contract.invariant(checkInvariant());
         return deepCopy;
     }
 
     @Override
     public IList<K> keyList() {
+    	Contract.invariant(checkInvariant());
         IList<K> list = new LinkedList<K>();
         for (int i = 0; i < this.table.length(); i++) {
             if (this.table.get(i) != null &&
                     this.table.get(i).getKey() != null)
                 list.addLast(this.table.get(i).getKey());
         }
+        Contract.ensure(list != null && list.size() >= 0);
+        Contract.invariant(checkInvariant());
         return list;
     }
 
