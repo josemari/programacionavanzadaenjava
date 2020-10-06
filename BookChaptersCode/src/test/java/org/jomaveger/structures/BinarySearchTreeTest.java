@@ -1,6 +1,6 @@
 package org.jomaveger.structures;
 
-import com.google.java.contract.PreconditionError;
+import org.jomaveger.lang.dbc.exceptions.ContractViolationException;
 import static org.junit.Assert.*;
 
 import java.util.Comparator;
@@ -28,7 +28,7 @@ public class BinarySearchTreeTest {
         assertTrue(tree.isEmpty());
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testConstructorPrecondition() {
         tree = new BinarySearchTree<>(null);
     }
@@ -40,17 +40,17 @@ public class BinarySearchTreeTest {
         assertTrue(tree.isEmpty());
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testPutPrecondition1() {
         tree.put(null, 100);
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testPutPrecondition2() {
         tree.put("Luke", null);
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testPutPrecondition3() {
         tree.put(null, null);
     }
@@ -64,7 +64,7 @@ public class BinarySearchTreeTest {
         assertTrue(7 == tree.size());
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testGetPrecondition() {
         tree.get(null);
     }
@@ -80,7 +80,7 @@ public class BinarySearchTreeTest {
         assertTrue(palpatine == null);
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testContainsPrecondition() {
         tree.contains(null);
     }
@@ -96,7 +96,7 @@ public class BinarySearchTreeTest {
         assertTrue(!isPalpatine);
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testRemovePrecondition() {
         tree.remove(null);
     }
@@ -117,12 +117,12 @@ public class BinarySearchTreeTest {
         assertTrue(5 == tree.size());
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testMinPrecondition() {
         tree.min();
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testMaxPrecondition() {
         tree.max();
     }
@@ -244,22 +244,20 @@ public class BinarySearchTreeTest {
         assertTrue(tree2.equals(clone2));
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testSortPrecondition() {
-        BinarySearchTree btree = new BinarySearchTree();
-        btree.sort(null);
+    	IBinarySearchTree.sort(null);
     }
 
     @Test
     public void testSortPostcondition() {
-        BinarySearchTree btree = new BinarySearchTree();
         IList<Integer> list = new LinkedList<>();
         list.addLast(7);
         list.addLast(3);
         list.addLast(5);
         list.addLast(9);
 
-        IList<Integer> sortedList = btree.sort(list);
+        IList<Integer> sortedList = IBinarySearchTree.sort(list);
 
         assertTrue(!sortedList.equals(list));
         assertTrue(sortedList.get(0) == 3);

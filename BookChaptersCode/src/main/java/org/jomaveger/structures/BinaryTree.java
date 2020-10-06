@@ -1,10 +1,9 @@
 package org.jomaveger.structures;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
 import java.io.Serializable;
 import java.util.Objects;
 import org.jomaveger.lang.DeepCloneable;
+import org.jomaveger.lang.dbc.Contract;
 
 public class BinaryTree<T> implements IBinaryTree<T>, Serializable {
 
@@ -15,42 +14,52 @@ public class BinaryTree<T> implements IBinaryTree<T>, Serializable {
     private IList<T> postorder;
     private IList<T> levelorder;
 
-    @Ensures("isEmpty()")
     public BinaryTree() {
         this.root = null;
+        
+        Contract.ensure(isEmpty());
     }
 
-    @Requires("rootItem != null")
-    @Ensures("!isEmpty() && root.getElem() == rootItem")
     public BinaryTree(final T rootItem) {
+    	Contract.require(rootItem != null);
+    	
         this.root = new BinaryNode<>(rootItem, null, null);
+        
+        Contract.ensure(!isEmpty() && root.getElem() == rootItem);
     }
 
     @Override
     public BinaryNode<T> getRoot() {
         BinaryNode<T> root = this.root;
+        
+        Contract.ensure(!isEmpty() || root == null);
         return root;
     }
 
     @Override
     public BinaryNode<T> getLeftChild() {
+    	Contract.require(!isEmpty());
         return this.root.getLeft();
     }
 
     @Override
     public BinaryNode<T> getRightChild() {
+    	Contract.require(!isEmpty());
         return this.root.getRight();
     }
 
     @Override
     public Boolean isEmpty() {
         Boolean condition = (this.root == null);
+        
+        Contract.ensure(condition == (size() == 0));
         return condition;
     }
 
     @Override
     public void makeEmpty() {
         this.root = null;
+        Contract.ensure(isEmpty());
     }
 
     @Override
@@ -80,6 +89,7 @@ public class BinaryTree<T> implements IBinaryTree<T>, Serializable {
     @Override
     public Integer height() {
         Integer result = this.recHeight(this.root);
+        Contract.ensure(result >= 0);
         return result;
     }
 
@@ -94,6 +104,7 @@ public class BinaryTree<T> implements IBinaryTree<T>, Serializable {
     @Override
     public Integer size() {
         Integer result = this.recSize(this.root);
+        Contract.ensure(result >= 0);
         return result;
     }
 
@@ -108,6 +119,7 @@ public class BinaryTree<T> implements IBinaryTree<T>, Serializable {
     @Override
     public Integer leaves() {
         Integer result = this.recLeaves(this.root);
+        Contract.ensure(result >= 0);
         return result;
     }
 
@@ -129,6 +141,7 @@ public class BinaryTree<T> implements IBinaryTree<T>, Serializable {
         } else {
            this.preorder = this.itPreorder(this.root);
         }
+        Contract.ensure(this.preorder.size() >= 0);
         return this.preorder;
     }
 
@@ -180,6 +193,7 @@ public class BinaryTree<T> implements IBinaryTree<T>, Serializable {
         } else {
             this.inorder = this.itInorder(this.root);
         }
+        Contract.ensure(this.inorder.size() >= 0);
         return this.inorder;
     }
 
@@ -230,6 +244,7 @@ public class BinaryTree<T> implements IBinaryTree<T>, Serializable {
         } else {
             this.postorder = this.itPostorder(this.root);
         }
+        Contract.ensure(this.postorder.size() >= 0);
         return this.postorder;
     }
 
@@ -294,7 +309,7 @@ public class BinaryTree<T> implements IBinaryTree<T>, Serializable {
                 }
             }
         }
-
+        Contract.ensure(this.levelorder.size() >= 0);
         return this.levelorder;
     }
 
@@ -306,6 +321,7 @@ public class BinaryTree<T> implements IBinaryTree<T>, Serializable {
         } catch (Exception e) {
             deepCopy = new BinaryTree<>();
         }
+        Contract.ensure(deepCopy.equals(this) || deepCopy.isEmpty());
         return deepCopy;
     }
 

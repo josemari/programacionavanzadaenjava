@@ -1,15 +1,12 @@
 package org.jomaveger.structures;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Invariant;
-import com.google.java.contract.Requires;
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Objects;
 import org.jomaveger.lang.DeepCloneable;
+import org.jomaveger.lang.dbc.Contract;
 import org.jomaveger.lang.ordering.NaturalOrder;
 
-@Invariant("checkInvariant()")
 public class BinarySearchTree<K extends Comparable<K>, V>
             implements IBinarySearchTree<K, V>, Serializable {
 
@@ -21,22 +18,36 @@ public class BinarySearchTree<K extends Comparable<K>, V>
     private IList<TableEntry<K, V>> postorder;
     private IList<TableEntry<K, V>> levelorder;
 
-    @Ensures("isEmpty()")
     public BinarySearchTree() {
         this.root = null;
         this.ordering = new NaturalOrder<K>();
+        
+        Contract.ensure(isEmpty());
+        Contract.invariant(checkInvariant());
     }
 
-    @Requires("ordering != null")
-    @Ensures("isEmpty()")
     public BinarySearchTree(Comparator<K> ordering) {
+    	Contract.require(ordering != null);
+    	
         this.root = null;
         this.ordering = ordering;
+        
+        Contract.ensure(isEmpty());
+        Contract.invariant(checkInvariant());
     }
 
     @Override
     public void put(K key, V value) {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(key != null && value != null);
+    	int oldSize = size();
+    	boolean oldContains = contains(key);
+    	
         this.root = this.recPut(this.root, key, value);
+        
+        Contract.ensure((!oldContains || size() == oldSize)
+        		|| (oldContains || size() == oldSize + 1));
+        Contract.invariant(checkInvariant());
     }
 
     private BinaryNode<TableEntry<K, V>> recPut(BinaryNode<TableEntry<K, V>> node, K key, V value) {
@@ -58,7 +69,14 @@ public class BinarySearchTree<K extends Comparable<K>, V>
 
     @Override
     public V get(K key) {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(key != null);
+    	int oldSize = size();
+    	
         V value = this.recGet(this.root, key);
+        
+        Contract.ensure((!contains(key) || value != null) && size() == oldSize);
+        Contract.invariant(checkInvariant());
         return value;
     }
 
@@ -78,7 +96,14 @@ public class BinarySearchTree<K extends Comparable<K>, V>
 
     @Override
     public Boolean contains(K key) {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(key != null);
+    	int oldSize = size();
+    	
         Boolean contains = this.recContains(this.root, key);
+        
+        Contract.ensure(size() == oldSize);
+        Contract.invariant(checkInvariant());
         return contains;
     }
 
@@ -98,7 +123,16 @@ public class BinarySearchTree<K extends Comparable<K>, V>
 
     @Override
     public void remove(K key) {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(key != null);
+    	int oldSize = size();
+    	boolean oldContains = contains(key);
+    	
         this.root = this.recRemove(this.root, key);
+        
+        Contract.ensure((oldContains || size() == oldSize)
+        		&& (!oldContains || size() == oldSize - 1));
+        Contract.invariant(checkInvariant());
     }
 
     private BinaryNode<TableEntry<K, V>> recRemove(BinaryNode<TableEntry<K, V>> node, K key) {
@@ -134,33 +168,51 @@ public class BinarySearchTree<K extends Comparable<K>, V>
 
     @Override
     public K min() {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(!isEmpty());
+    	
         BinaryNode<TableEntry<K, V>> node = this.root;
         while (node.getLeft() != null) {
             node = node.getLeft();
         }
         K min = node.getElem().getKey();
+        
+        Contract.invariant(checkInvariant());
         return min;
     }
 
     @Override
     public K max() {
+    	Contract.invariant(checkInvariant());
+    	Contract.require(!isEmpty());
+    	
         BinaryNode<TableEntry<K, V>> node = this.root;
         while (node.getRight() != null) {
             node = node.getRight();
         }
         K max = node.getElem().getKey();
+        
+        Contract.invariant(checkInvariant());
         return max;
     }
 
     @Override
     public Boolean isEmpty() {
+    	Contract.invariant(checkInvariant());
+    	
         Boolean condition = (this.root == null);
+        
+        Contract.ensure(condition == (size() == 0));
+        Contract.invariant(checkInvariant());
         return condition;
     }
 
     @Override
     public void makeEmpty() {
+    	Contract.invariant(checkInvariant());
         this.root = null;
+        Contract.ensure(isEmpty());
+        Contract.invariant(checkInvariant());
     }
 
     @Override
@@ -189,7 +241,10 @@ public class BinarySearchTree<K extends Comparable<K>, V>
 
     @Override
     public Integer height() {
+    	Contract.invariant(checkInvariant());
         Integer result = this.recHeight(this.root);
+        Contract.ensure(result >= 0);
+        Contract.invariant(checkInvariant());
         return result;
     }
 
@@ -203,7 +258,10 @@ public class BinarySearchTree<K extends Comparable<K>, V>
 
     @Override
     public Integer size() {
+    	Contract.invariant(checkInvariant());
         Integer result = this.recSize(this.root);
+        Contract.ensure(result >= 0);
+        Contract.invariant(checkInvariant());
         return result;
     }
 
@@ -217,7 +275,10 @@ public class BinarySearchTree<K extends Comparable<K>, V>
 
     @Override
     public Integer leaves() {
+    	Contract.invariant(checkInvariant());
         Integer result = this.recLeaves(this.root);
+        Contract.ensure(result >= 0);
+        Contract.invariant(checkInvariant());
         return result;
     }
 
@@ -233,12 +294,15 @@ public class BinarySearchTree<K extends Comparable<K>, V>
 
     @Override
     public IList<TableEntry<K, V>> preorder() {
+    	Contract.invariant(checkInvariant());
         this.preorder = new LinkedList<>();
         if (this.isBalanced()) {
             this.preorder = this.recPreorder(this.root);
         } else {
            this.preorder = this.itPreorder(this.root);
         }
+        Contract.ensure(this.preorder.size() >= 0);
+        Contract.invariant(checkInvariant());
         return this.preorder;
     }
 
@@ -283,12 +347,15 @@ public class BinarySearchTree<K extends Comparable<K>, V>
 
     @Override
     public IList<TableEntry<K, V>> inorder() {
+    	Contract.invariant(checkInvariant());
         this.inorder = new LinkedList<>();
         if (this.isBalanced()) {
             this.inorder = this.recInorder(this.root);
         } else {
             this.inorder = this.itInorder(this.root);
         }
+        Contract.ensure(this.inorder.size() >= 0);
+        Contract.invariant(checkInvariant());
         return this.inorder;
     }
 
@@ -333,12 +400,15 @@ public class BinarySearchTree<K extends Comparable<K>, V>
 
     @Override
     public IList<TableEntry<K, V>> postorder() {
+    	Contract.invariant(checkInvariant());
         this.postorder = new LinkedList<>();
         if (this.isBalanced()) {
             this.postorder = this.recPostorder(this.root);
         } else {
             this.postorder = this.itPostorder(this.root);
         }
+        Contract.ensure(this.postorder.size() >= 0);
+        Contract.invariant(checkInvariant());
         return this.postorder;
     }
 
@@ -383,6 +453,7 @@ public class BinarySearchTree<K extends Comparable<K>, V>
 
     @Override
     public IList<TableEntry<K, V>> levelorder() {
+    	Contract.invariant(checkInvariant());
         this.levelorder = new LinkedList<>();
         BinaryNode<TableEntry<K, V>> next, child;
 
@@ -403,23 +474,31 @@ public class BinarySearchTree<K extends Comparable<K>, V>
                 }
             }
         }
+        Contract.ensure(this.levelorder.size() >= 0);
+        Contract.invariant(checkInvariant());
         return this.levelorder;
     }
 
     @Override
     public IList<TableEntry<K, V>> getOrderedList() {
+    	Contract.invariant(checkInvariant());
         IList<TableEntry<K, V>> orderedList = this.inorder();
+        Contract.ensure(orderedList.size() >= 0);
+        Contract.invariant(checkInvariant());
         return orderedList;
     }
 
     @Override
     public IBinarySearchTree<K, V> deepCopy() {
+    	Contract.invariant(checkInvariant());
         IBinarySearchTree<K, V> deepCopy;
         try {
             deepCopy = DeepCloneable.deepCopy(this);
         } catch (Exception e) {
             deepCopy = new BinarySearchTree<>();
         }
+        Contract.ensure(deepCopy.equals(this) || deepCopy.isEmpty());
+        Contract.invariant(checkInvariant());
         return deepCopy;
     }
 
@@ -504,24 +583,5 @@ public class BinarySearchTree<K extends Comparable<K>, V>
         K max = node.getElem().getKey();
 
         return max;
-    }
-
-    @Override
-    public <T extends Comparable<T>> IList<T> sort(IList<T> list) {
-        IBinarySearchTree<T, T> tree = new BinarySearchTree<>();
-
-        while (!list.isEmpty()) {
-            T elem = list.getFirst();
-            list.removeFirst();
-            tree.put(elem, elem);
-        }
-
-        IList<TableEntry<T, T>> orderedList = tree.getOrderedList();
-        IList<T> resul = new LinkedList<>();
-
-        for (TableEntry<T, T> entry : orderedList) {
-            resul.addLast(entry.getKey());
-        }
-        return resul;
     }
 }

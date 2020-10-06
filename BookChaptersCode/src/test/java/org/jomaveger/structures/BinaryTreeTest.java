@@ -1,6 +1,6 @@
 package org.jomaveger.structures;
 
-import com.google.java.contract.PreconditionError;
+import org.jomaveger.lang.dbc.exceptions.ContractViolationException;
 import static org.junit.Assert.*;
 
 import org.junit.After;
@@ -46,7 +46,7 @@ public class BinaryTreeTest {
         assertTrue(tree.isEmpty());
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testConstructorPrecondition() {
         tree = new BinaryTree<>(null);
     }
@@ -66,12 +66,12 @@ public class BinaryTreeTest {
         assertTrue(root != null);
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testGetLeftChildPrecondition() {
         tree.getLeftChild();
     }
 
-    @Test(expected = PreconditionError.class)
+    @Test(expected = ContractViolationException.class)
     public void testGetRightChildPrecondition() {
         tree.getRightChild();
     }
