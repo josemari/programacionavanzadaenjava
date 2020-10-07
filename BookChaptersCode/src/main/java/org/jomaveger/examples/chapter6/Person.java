@@ -1,33 +1,51 @@
 package org.jomaveger.examples.chapter6;
 
-import java.io.Serializable;
+import java.util.function.Function;
 
-public class Person implements Comparable<Person>, Serializable {
-
-	private static final long serialVersionUID = 1L;
+public class Person {
 	
-	private static final String FORMAT = "ID: %s, First name: %s, Last name: %s";
-	public final int id;
-	public final String firstName;
-	public final String lastName;
-
-	private Person(int id, String firstName, String lastName) {
-		this.id = id;
-		this.firstName = firstName;
-		this.lastName = lastName;
+	private final Function<Integer, Integer> calcRaiseLambda = currentYear -> calculateSalaryRaise(currentYear);
+	private final Function<Integer, Integer> calcRaiseMethRef = this::calculateSalaryRaise;
+	
+	private static Integer population = 0; 
+	
+	private final String name;
+	private final Integer birthYear;
+	private Integer salary;
+	
+	public Person(String name, Integer birthYear) {
+		this.name = name;
+		this.birthYear = birthYear;
+		Person.population++;
 	}
-
-	public static Person apply(int id, String firstName, String lastName) {
-		return new Person(id, firstName, lastName);
+	
+	public String getName() {
+		return name;
 	}
-
-	@Override
-	public String toString() {
-		return String.format(FORMAT, id, firstName, lastName);
+	
+	public Integer getAge(Integer currentYear) {
+		return currentYear - this.birthYear;
 	}
-
-	@Override
-	public int compareTo(Person o) {
-		return Integer.compare(id, o.id);
+	
+	public void setSalary(Integer salary) {
+		this.salary = salary;
+	}
+	
+	public Integer getSalary() {
+		return this.salary;
+	}
+	
+	public Integer calculateSalaryRaise(Integer currentYear) {
+		return this.salary * this.getAge(currentYear) / 100;
+	}
+	
+	public void upgradeSalaryWithLambda(Integer currentYear) {
+		Integer raise = calcRaiseLambda.apply(currentYear);		
+		this.salary += raise;
+	}
+	
+	public void upgradeSalaryWithMethodReference(Integer currentYear) {
+		Integer raise = calcRaiseMethRef.apply(currentYear);		
+		this.salary += raise;
 	}
 }
