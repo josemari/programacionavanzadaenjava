@@ -18,9 +18,9 @@ public interface IGraph<T> {
 	
 	boolean hasEdge(Edge<T> e);
 	
-	double getWeight(Edge<T> e);
+	Double getWeight(Edge<T> e);
 	
-	IList<Vertex<T>> getAdj(Vertex<T> v);
+	IList<Edge<T>> getAdj(Vertex<T> v);
 	
 	boolean isEmpty();
 	

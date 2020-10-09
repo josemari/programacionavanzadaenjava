@@ -1,6 +1,7 @@
 package org.jomaveger.structures;
 
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.Objects;
 
 import org.jomaveger.lang.DeepCloneable;
@@ -8,51 +9,86 @@ import org.jomaveger.lang.dbc.Contract;
 
 public class Graph<T> implements IGraph<T>, Serializable {
 	
-	private int size;
 	private IList<Vertex<T>> vertex;
-	private IList<IList<Edge<T>>> matrix;
+	private IList<IList<Edge<T>>> edges;
 	private boolean isDirected;
 	private boolean isWeighted;
 	
+	public Graph() {
+		this(false, false);
+	}
+	
 	public Graph(boolean isDirected, boolean isWeighted) {
-		this.size = 0;
 		this.vertex = new LinkedList<>();
-		this.matrix = new LinkedList<>();
+		this.edges = new LinkedList<>();
 		this.isDirected = isDirected;
 		this.isWeighted = isWeighted;
 		
 		Contract.ensure(isEmpty());
         Contract.invariant(checkInvariant());
 	}
+	
+	private int search(Vertex<T> v) {
+		return vertex.indexOf(v);
+	}
 
 	@Override
 	public boolean isDirected() {
-		// TODO Auto-generated method stub
-		return false;
+		return this.isDirected;
 	}
 
 	@Override
 	public boolean isWeighted() {
-		// TODO Auto-generated method stub
-		return false;
+		return this.isWeighted;
 	}
 
 	@Override
 	public void addVertex(Vertex<T> v) {
-		// TODO Auto-generated method stub
-		
+		Contract.require(v != null);
+		int index = this.search(v);
+		if (index == -1) {
+			vertex.addLast(v);
+			edges.addLast(new LinkedList<>());
+		}
 	}
 
 	@Override
 	public void addEdge(Edge<T> e) {
-		// TODO Auto-generated method stub
-		
+		Contract.require(e != null);
+		int vIndex = this.search(e.getOrig());
+		int wIndex = this.search(e.getDest());
+		if (vIndex != -1 && wIndex != -1) {
+			IList<Edge<T>> eg = edges.get(vIndex);
+			int eIndex = eg.indexOf(e);
+			if (eIndex == -1) {
+				eg.addLast(e);
+				if (!isDirected()) {
+					edges.get(wIndex).addLast(new Edge<>(e.getDest(), e.getOrig(), e.getWeight()));
+				}
+			} else {
+				if (isWeighted()) {
+					eg.get(eIndex).setWeight(e.getWeight());
+				}
+			}
+		}
 	}
 
 	@Override
 	public void removeVertex(Vertex<T> v) {
-		// TODO Auto-generated method stub
-		
+		Contract.require(v != null);
+		int vIndex = this.search(v);
+		if (vIndex != -1) {
+			vertex.remove(vIndex);
+			edges.remove(vIndex);
+			for (IList<Edge<T>> iList : edges) {
+				for (Iterator<Edge<T>> iterator = iList.iterator(); iterator.hasNext();) {
+					Edge<T> elem = iterator.next();
+					if (elem.getDest().equals(v)) {
+						iterator.remove();
+					}
+				}
+			}
+		}
 	}
 
 	@Override
@@ -63,8 +99,8 @@ public class Graph<T> implements IGraph<T>, Serializable {
 
 	@Override
 	public boolean hasVertex(Vertex<T> v) {
-		// TODO Auto-generated method stub
-		return false;
+		Contract.require(v != null);
+		return (this.search(v) != -1);
 	}
 
 	@Override
@@ -74,26 +110,35 @@ public class Graph<T> implements IGraph<T>, Serializable {
 	}
 
 	@Override
-	public double getWeight(Edge<T> e) {
-		// TODO Auto-generated method stub
-		return 0;
+	public Double getWeight(Edge<T> e) {
+		Contract.require(e != null && isWeighted());
+		int vIndex = this.search(e.getOrig());
+		int wIndex = this.search(e.getDest());
+		if (vIndex != -1 && wIndex != -1) {
+			IList<Edge<T>> eg = edges.get(vIndex);
+			int eIndex = eg.indexOf(e);
+			if (eIndex != -1) {
+				return eg.get(eIndex).getWeight();
+			}
+		}
+		return Double.NaN;
 	}
 
 	@Override
-	public IList<Vertex<T>> getAdj(Vertex<T> v) {
-		// TODO Auto-generated method stub
-		return null;
+	public IList<Edge<T>> getAdj(Vertex<T> v) {
+		Contract.require(v != null && hasVertex(v));
+		int vIndex = this.search(v);
+		return edges.get(vIndex);
 	}
 
 	@Override
 	public boolean isEmpty() {
-		return this.size == 0;
+		return this.vertex.size() == 0;
 	}
 
 	@Override
 	public int numVertex() {
-		// TODO Auto-generated method stub
-		return 0;
+		return vertex.size();
 	}
 
 	@Override
@@ -109,7 +154,7 @@ public class Graph<T> implements IGraph<T>, Serializable {
         try {
             deepCopy = DeepCloneable.deepCopy(this);
         } catch (Exception e) {
-            deepCopy = new Graph<>(false, false);
+            deepCopy = new Graph<>();
         }
         Contract.ensure(deepCopy.equals(this) || deepCopy.isEmpty());
         Contract.invariant(checkInvariant());
@@ -117,7 +162,7 @@ public class Graph<T> implements IGraph<T>, Serializable {
 	}
 
 	private boolean checkInvariant() {
-		return this.size >= 0;
+		return this.vertex.size() >= 0;
 	}
 	
 	@Override
@@ -125,7 +170,7 @@ public class Graph<T> implements IGraph<T>, Serializable {
         StringBuilder string = new StringBuilder();
         string.append(this.getClass().getName() + "[");
 
-        for (IList<Edge<T>> iList : matrix) {
+        for (IList<Edge<T>> iList : edges) {
 			string.append(iList);
 		}
 
@@ -141,13 +186,11 @@ public class Graph<T> implements IGraph<T>, Serializable {
             return false;
 
         Graph<T> that = (Graph<T>) otherObject;
-
-        if (!Objects.equals(this.size, that.size)) return false;
         
         if (!Objects.equals(this.vertex, that.vertex)) return false;
         
-        for (int i = 0; i < this.matrix.size(); i++) {
-        	if (!Objects.equals(this.matrix.get(i), that.matrix.get(i))) return false;
+        for (int i = 0; i < this.edges.size(); i++) {
+        	if (!Objects.equals(this.edges.get(i), that.edges.get(i))) return false;
 			
 		}
 
@@ -158,9 +201,8 @@ public class Graph<T> implements IGraph<T>, Serializable {
     public int hashCode() {
     	final int prime = 31;
 		int result = 1;
-		result = prime * result + Integer.valueOf(this.size).hashCode();
 		result = prime * result + vertex.hashCode();
-		result = prime * result + matrix.hashCode();
+		result = prime * result + edges.hashCode();
 		return result;
     }
 }
