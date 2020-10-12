@@ -9,8 +9,8 @@ import org.jomaveger.lang.dbc.Contract;
 
 public class Graph<T> implements IGraph<T>, Serializable {
 	
-	private IList<Vertex<T>> vertex;
-	private IList<IList<Edge<T>>> edges;
+	protected IList<Vertex<T>> vertex;
+	protected IList<IList<Edge<T>>> edges;
 	private boolean isDirected;
 	private boolean isWeighted;
 	
@@ -34,47 +34,59 @@ public class Graph<T> implements IGraph<T>, Serializable {
 
 	@Override
 	public boolean isDirected() {
-		return this.isDirected;
+		Contract.invariant(checkInvariant());
+		boolean resul = this.isDirected;
+		Contract.invariant(checkInvariant());
+		return resul;
 	}
 
 	@Override
 	public boolean isWeighted() {
-		return this.isWeighted;
+		Contract.invariant(checkInvariant());
+		boolean resul = this.isWeighted;
+		Contract.invariant(checkInvariant());
+		return resul;
 	}
 
 	@Override
 	public void addVertex(Vertex<T> v) {
+		Contract.invariant(checkInvariant());
 		Contract.require(v != null);
 		int index = this.search(v);
 		if (index == -1) {
 			vertex.addLast(v);
 			edges.addLast(new LinkedList<>());
 		}
+		Contract.ensure(vertex.contains(v) && !vertex.isEmpty());
+		Contract.invariant(checkInvariant());
 	}
 
 	@Override
 	public void addEdge(Edge<T> e) {
-		Contract.require(e != null);
+		Contract.invariant(checkInvariant());
+		Contract.require(e != null && hasVertex(e.getOrig()) && hasVertex(e.getDest())
+				&& (!isWeighted() || !Double.isNaN(e.getWeight())));
 		int vIndex = this.search(e.getOrig());
 		int wIndex = this.search(e.getDest());
-		if (vIndex != -1 && wIndex != -1) {
-			IList<Edge<T>> eg = edges.get(vIndex);
-			int eIndex = eg.indexOf(e);
-			if (eIndex == -1) {
-				eg.addLast(e);
-				if (!isDirected()) {
-					edges.get(wIndex).addLast(new Edge<>(e.getDest(), e.getOrig(), e.getWeight()));
-				}
-			} else {
-				if (isWeighted()) {
-					eg.get(eIndex).setWeight(e.getWeight());
-				}
+		IList<Edge<T>> eg = edges.get(vIndex);
+		int eIndex = eg.indexOf(e);
+		if (eIndex == -1) {
+			eg.addLast(e);
+			if (!isDirected()) {
+				edges.get(wIndex).addLast(new Edge<>(e.getDest(), e.getOrig(), e.getWeight()));
+			}
+		} else {
+			if (isWeighted()) {
+				eg.get(eIndex).setWeight(e.getWeight());
 			}
 		}
+		Contract.ensure(edges.get(vIndex).contains(e) && !edges.get(vIndex).isEmpty());
+		Contract.invariant(checkInvariant());
 	}
 
 	@Override
 	public void removeVertex(Vertex<T> v) {
+		Contract.invariant(checkInvariant());
 		Contract.require(v != null);
 		int vIndex = this.search(v);
 		if (vIndex != -1) {
@@ -89,62 +101,104 @@ public class Graph<T> implements IGraph<T>, Serializable {
 				}
 			}
 		}
+		Contract.ensure(!vertex.contains(v));
+		Contract.invariant(checkInvariant());
 	}
 
 	@Override
 	public void removeEdge(Edge<T> e) {
-		// TODO Auto-generated method stub
-		
+		Contract.invariant(checkInvariant());
+		Contract.require(e != null && hasEdge(e));
+		int vIndex = this.search(e.getOrig());
+		int wIndex = this.search(e.getDest());
+		IList<Edge<T>> vw = edges.get(vIndex);
+		int vwIndex = vw.indexOf(e);
+		vw.remove(vwIndex);
+		if (!isDirected()) {
+			IList<Edge<T>> wv = edges.get(wIndex);
+			int wvIndex = wv.indexOf(new Edge<>(e.getDest(), e.getOrig(), e.getWeight()));
+			wv.remove(wvIndex);
+		}
+		Contract.ensure(!hasEdge(e));
+		Contract.invariant(checkInvariant());
 	}
 
 	@Override
 	public boolean hasVertex(Vertex<T> v) {
+		Contract.invariant(checkInvariant());
 		Contract.require(v != null);
-		return (this.search(v) != -1);
+		boolean resul = (this.search(v) != -1);
+		Contract.ensure(this.search(v) != -1);
+		Contract.invariant(checkInvariant());
+		return resul;
 	}
 
 	@Override
 	public boolean hasEdge(Edge<T> e) {
-		// TODO Auto-generated method stub
-		return false;
+		Contract.invariant(checkInvariant());
+		Contract.require(e != null && hasVertex(e.getOrig()) && hasVertex(e.getDest()));
+		int vIndex = this.search(e.getOrig());
+		IList<Edge<T>> eg = edges.get(vIndex);
+		int eIndex = eg.indexOf(e);
+		boolean resul = (eIndex != -1);
+		Contract.ensure(resul == (eIndex != -1));
+		Contract.invariant(checkInvariant());
+		return resul;
 	}
 
 	@Override
 	public Double getWeight(Edge<T> e) {
-		Contract.require(e != null && isWeighted());
+		Contract.invariant(checkInvariant());
+		Contract.require(e != null && hasEdge(e) && isWeighted());
 		int vIndex = this.search(e.getOrig());
-		int wIndex = this.search(e.getDest());
-		if (vIndex != -1 && wIndex != -1) {
-			IList<Edge<T>> eg = edges.get(vIndex);
-			int eIndex = eg.indexOf(e);
-			if (eIndex != -1) {
-				return eg.get(eIndex).getWeight();
-			}
-		}
-		return Double.NaN;
+		IList<Edge<T>> eg = edges.get(vIndex);
+		int eIndex = eg.indexOf(e);
+		double w = eg.get(eIndex).getWeight();
+		Contract.invariant(checkInvariant());
+		return w;
 	}
 
 	@Override
 	public IList<Edge<T>> getAdj(Vertex<T> v) {
+		Contract.invariant(checkInvariant());
 		Contract.require(v != null && hasVertex(v));
 		int vIndex = this.search(v);
-		return edges.get(vIndex);
+		IList<Edge<T>> adj = edges.get(vIndex);
+		Contract.ensure(adj.size() >= 0);
+		Contract.invariant(checkInvariant());
+		return adj;
 	}
 
 	@Override
 	public boolean isEmpty() {
-		return this.vertex.size() == 0;
+		Contract.invariant(checkInvariant());
+		boolean resul = this.vertex.size() == 0;
+		Contract.ensure(resul == (this.vertex.size() == 0));
+		Contract.invariant(checkInvariant());
+		return resul;
 	}
 
 	@Override
 	public int numVertex() {
-		return vertex.size();
+		Contract.invariant(checkInvariant());
+		int size = vertex.size();
+		Contract.invariant(checkInvariant());
+		return size;
 	}
 
 	@Override
 	public int numEdges() {
-		// TODO Auto-generated method stub
-		return 0;
+		Contract.invariant(checkInvariant());
+		int numEdges = 0;
+		for (IList<Edge<T>> iList : edges) {
+			numEdges += iList.size();
+		}
+		if (!isDirected()) {
+			numEdges = numEdges / 2;
+		}
+		Contract.ensure(numEdges >= 0);
+		Contract.invariant(checkInvariant());
+		return numEdges;
 	}
 
 	@Override

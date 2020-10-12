@@ -11,6 +11,10 @@ public class Edge<T> implements Comparable<Edge<T>>, Serializable {
 	private Vertex<T> dest;
 	private double weight;
 	
+	public Edge(Vertex<T> v, Vertex<T> w) {
+		this(v, w, Double.NaN);
+	}
+	
 	public Edge(Vertex<T> v, Vertex<T> w, double weight) {
 		Contract.require(v != null && w != null);
 		this.orig = v;
