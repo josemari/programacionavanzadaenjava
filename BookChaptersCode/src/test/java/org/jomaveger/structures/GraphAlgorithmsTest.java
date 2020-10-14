@@ -16,6 +16,13 @@ public class GraphAlgorithmsTest {
 	private Vertex<Integer> e = new Vertex<>("E", 50);
 	private Vertex<Integer> f = new Vertex<>("F", 60);
 	private Vertex<Integer> g = new Vertex<>("G", 70);
+	
+	private Vertex<Integer> uno = new Vertex<>("1", 10);
+	private Vertex<Integer> dos = new Vertex<>("2", 20);
+	private Vertex<Integer> tres = new Vertex<>("3", 30);
+	private Vertex<Integer> cuatro = new Vertex<>("4", 40);
+	private Vertex<Integer> cinco = new Vertex<>("5", 50);
+	
 	private Edge<Integer> ab = new Edge<>(a, b);
 	private Edge<Integer> ad = new Edge<>(a, d);
 	private Edge<Integer> bc = new Edge<>(b, c);
@@ -24,6 +31,13 @@ public class GraphAlgorithmsTest {
 	private Edge<Integer> ed = new Edge<>(e, d);
 	private Edge<Integer> fb = new Edge<>(f, b);
 	private Edge<Integer> fg = new Edge<>(f, g);
+	
+	private Edge<Integer> unodos = new Edge<>(uno, dos);
+	private Edge<Integer> dostres = new Edge<>(dos, tres);
+	private Edge<Integer> doscinco = new Edge<>(dos, cinco);
+	private Edge<Integer> unocuatro = new Edge<>(uno, cuatro);
+	private Edge<Integer> cuatrocinco = new Edge<>(cuatro, cinco);
+	
 	
 	@Before
     public void setUp() {
@@ -231,5 +245,20 @@ public class GraphAlgorithmsTest {
         assertTrue(bfsList.contains(e));
         assertTrue(bfsList.contains(f));
         assertTrue(bfsList.contains(g));
+	}
+	
+	@Test
+	public void testIsConnected() {
+		g1.addVertex(uno);
+        g1.addVertex(dos);
+        g1.addVertex(tres);
+        g1.addVertex(cuatro);
+        g1.addVertex(cinco);
+        g1.addEdge(unodos);
+        g1.addEdge(dostres);
+        g1.addEdge(doscinco);
+        g1.addEdge(unocuatro);
+        g1.addEdge(cuatrocinco);
+        assertTrue(g1.isConnected(uno));
 	}
 }

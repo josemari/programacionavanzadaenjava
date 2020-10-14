@@ -133,6 +133,17 @@ public class GraphAlgorithms<T> extends Graph<T> {
 		return bfsList;
 	}
 	
+	public boolean isConnected(Vertex<T> v) {
+		int k = 0;
+		IList<Vertex<T>> dfsList = new LinkedList<>();
+		ITable<Vertex<T>, Integer> path = new LinkedTable<>();
+		for (Vertex<T> vertex : vertex) {
+			path.set(vertex, 0);
+		}
+		dfsList = DFS(v, k, path, dfsList);
+		return (dfsList.size() == vertex.size());
+	}
+	
 	public IList<Vertex<T>> getAdjVertex(Vertex<T> v) {
 		IList<Vertex<T>> adj = new LinkedList<>();
 		IList<Edge<T>> edges = this.getAdj(v);
