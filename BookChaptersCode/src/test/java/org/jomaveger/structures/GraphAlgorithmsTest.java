@@ -37,7 +37,10 @@ public class GraphAlgorithmsTest {
 	private Edge<Integer> doscinco = new Edge<>(dos, cinco);
 	private Edge<Integer> unocuatro = new Edge<>(uno, cuatro);
 	private Edge<Integer> cuatrocinco = new Edge<>(cuatro, cinco);
-	
+	private Edge<Integer> tresdos = new Edge<>(tres, dos);
+	private Edge<Integer> unotres = new Edge<>(uno, tres);
+	private Edge<Integer> cincouno = new Edge<>(cinco, uno);
+	private Edge<Integer> cincotres = new Edge<>(cinco, tres);
 	
 	@Before
     public void setUp() {
@@ -249,6 +252,23 @@ public class GraphAlgorithmsTest {
 	
 	@Test
 	public void testIsConnected() {
+		GraphAlgorithms<Integer> g2;
+		g2 = new GraphAlgorithms<>(false, false);
+		g2.addVertex(uno);
+        g2.addVertex(dos);
+        g2.addVertex(tres);
+        g2.addVertex(cuatro);
+        g2.addVertex(cinco);
+        g2.addEdge(unodos);
+        g2.addEdge(dostres);
+        g2.addEdge(doscinco);
+        g2.addEdge(unocuatro);
+        g2.addEdge(cuatrocinco);
+        assertTrue(g2.isConnected(uno));
+	}
+	
+	@Test
+	public void testStronglyConnectedComponents() {
 		g1.addVertex(uno);
         g1.addVertex(dos);
         g1.addVertex(tres);
@@ -256,9 +276,19 @@ public class GraphAlgorithmsTest {
         g1.addVertex(cinco);
         g1.addEdge(unodos);
         g1.addEdge(dostres);
-        g1.addEdge(doscinco);
+        g1.addEdge(tresdos);
+        g1.addEdge(unotres);
         g1.addEdge(unocuatro);
         g1.addEdge(cuatrocinco);
-        assertTrue(g1.isConnected(uno));
+        g1.addEdge(cincouno);
+        g1.addEdge(cincotres);
+        
+        ITable<Vertex<Integer>, Integer> components = g1.stronglyConnectedComponents(uno);
+        IList<Vertex<Integer>> keys = components.keyList();
+        ISet<Integer> set = new Set<>();
+        for (Vertex<Integer> vertex : keys) {
+			set.add(components.get(vertex));
+		}
+        assertEquals((Integer)2, set.cardinal());
 	}
 }
