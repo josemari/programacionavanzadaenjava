@@ -231,21 +231,16 @@ public class LinkedListTest {
     
     @Test(expected = ContractViolationException.class)
     public void testAddPrecondition1() {
-    	list.add(0, siete);
-    }
-    
-    @Test(expected = ContractViolationException.class)
-    public void testAddPrecondition2() {
     	list.add(0, null);
     }
     
     @Test(expected = ContractViolationException.class)
-    public void testAddPrecondition3() {
+    public void testAddPrecondition2() {
     	list.add(-1, tres);
     }
     
     @Test(expected = ContractViolationException.class)
-    public void testAddPrecondition4() {
+    public void testAddPrecondition3() {
     	list.addLast(siete);
         list.addLast(tres);
         list.addLast(cinco);

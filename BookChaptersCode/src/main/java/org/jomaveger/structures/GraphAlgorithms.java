@@ -1,5 +1,8 @@
 package org.jomaveger.structures;
 
+import java.util.PriorityQueue;
+import java.util.Queue;
+
 public class GraphAlgorithms<T> extends Graph<T> {
 	
 	public GraphAlgorithms() {
@@ -208,10 +211,120 @@ public class GraphAlgorithms<T> extends Graph<T> {
 		}
 		return component;
 	}
+	
+	public ITable<Vertex<T>, Integer> getInputDegree() {
+		ITable<Vertex<T>, Integer> idegree = new LinkedTable<>();
+		
+		for (Vertex<T> v : vertex) {
+			int input = 0;
+			for (IList<Edge<T>> iList : edges) {
+				for (Edge<T> edge : iList) {
+					if (edge.getDest().equals(v)) {
+						input++;
+					}
+				}
+			}
+			idegree.set(v, input);
+		}
+		
+		return idegree;
+	}
+	
+	public IList<Vertex<T>> topologicalSort() {
+		IList<Vertex<T>> tsort = new LinkedList<>();
+		IList<Vertex<T>> adj;
+		ITable<Vertex<T>, Integer> idegree = getInputDegree();
+		IQueue<Vertex<T>> q = new LinkedQueue<>();
+		IList<Vertex<T>> idl = idegree.keyList();
+		for (Vertex<T> vertex : idl) {
+			if (idegree.get(vertex) == 0) {
+				q.enqueue(vertex);
+			}
+		}
+		int posicion = -1;
+		while (!q.isEmpty()) {
+			Vertex<T> v = q.front();
+			q.dequeue();
+			posicion++;
+			tsort.add(posicion, v);
+			adj = getAdjVertex(v);
+			
+			while (!adj.isEmpty()) {
+				Vertex<T> w = adj.getFirst();
+				adj.removeFirst();
+				idegree.set(w, idegree.get(w) - 1);
+				if (idegree.get(w) == 0) {
+					q.enqueue(w);
+				}
+			}
+		}
+		return tsort;
+	}
+	
+	public CostPath<T> prim(Vertex<T> v) {
+		Queue<Edge<T>> pq = new PriorityQueue<>();
+		
+		IList<Edge<T>> mst = new LinkedList<>();
+		ITable<Vertex<T>, Boolean> visitedVertex = new LinkedTable<>();
+		for (Vertex<T> vertex : vertex) {
+			visitedVertex.set(vertex, false);
+		}
+		
+		int count = 0;
+		Double wmst = 0.0;
+		
+		visitedVertex.set(v, true);
+		for (Edge<T> edge : getAdj(v)) {
+			pq.add(edge);
+		}
+		
+		while (!pq.isEmpty()) {
+			if (count == vertex.size() - 1) {
+				break;
+			}
+			
+			Edge<T> e = pq.remove();
+			Vertex<T> u = e.getOrig();
+			Vertex<T> w;
+			if (visitedVertex.get(u) == true) {
+				w = e.getDest();
+			} else {
+				w = u;
+			}
+			
+			if (visitedVertex.get(w) == true) {
+				continue;
+			}
+			
+			visitedVertex.set(w, true);
+			wmst += e.getWeight();
+			mst.addLast(e);
+			count++;
+			
+			for (Edge<T> e2 : getAdj(w)) {
+				Vertex<T> s = e2.getDest();
+				
+				if (visitedVertex.get(s) == false) {
+					pq.add(e2);	
+				}
+			}
+		}
+		
+		CostPath<T> cp = new CostPath<>();
+        cp.cost = wmst;
+        cp.eList = mst;
+        return cp;
+	}
 
 	public static class VertexInfo<T> {
 		
 		public Vertex<T> vertex;
 		public IList<Vertex<T>> adj;
+	}
+	
+	public static class CostPath<T> {
+		
+		public IList<Edge<T>> eList;
+		public Double cost;
 	}
 }

@@ -222,7 +222,7 @@ public class LinkedList<T> implements IList<T>, Serializable {
     @Override
     public void add(Integer index, final T elem) {
     	Contract.invariant(checkInvariant());
-    	Contract.require(!isEmpty() && (elem != null) && (index >= 0) && (index <= size()));
+    	Contract.require((elem != null) && (index >= 0) && (index <= size()));
     	int oldSize = size();
     	
         if (index == 0)

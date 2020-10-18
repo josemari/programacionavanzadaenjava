@@ -2,6 +2,7 @@ package org.jomaveger.structures;
 
 import static org.junit.Assert.*;
 
+import org.jomaveger.structures.GraphAlgorithms.CostPath;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,6 +23,13 @@ public class GraphAlgorithmsTest {
 	private Vertex<Integer> tres = new Vertex<>("3", 30);
 	private Vertex<Integer> cuatro = new Vertex<>("4", 40);
 	private Vertex<Integer> cinco = new Vertex<>("5", 50);
+	private Vertex<Integer> seis = new Vertex<>("6", 60);
+	private Vertex<Integer> siete = new Vertex<>("7", 70);
+	private Vertex<Integer> ocho = new Vertex<>("8", 80);
+	private Vertex<Integer> nueve = new Vertex<>("9", 90);
+	private Vertex<Integer> diez = new Vertex<>("10", 100);
+	private Vertex<Integer> once = new Vertex<>("11", 110);
+	private Vertex<Integer> doce = new Vertex<>("12", 120);
 	
 	private Edge<Integer> ab = new Edge<>(a, b);
 	private Edge<Integer> ad = new Edge<>(a, d);
@@ -41,6 +49,29 @@ public class GraphAlgorithmsTest {
 	private Edge<Integer> unotres = new Edge<>(uno, tres);
 	private Edge<Integer> cincouno = new Edge<>(cinco, uno);
 	private Edge<Integer> cincotres = new Edge<>(cinco, tres);
+	
+	private Edge<Integer> unocinco = new Edge<>(uno, cinco);
+	private Edge<Integer> unoseis = new Edge<>(uno, seis);
+	private Edge<Integer> trescinco = new Edge<>(tres, cinco);
+	private Edge<Integer> cincoseis = new Edge<>(cinco, seis);
+	private Edge<Integer> cincosiete = new Edge<>(cinco, siete);
+	private Edge<Integer> seisocho = new Edge<>(seis, ocho);
+	private Edge<Integer> nuevetres = new Edge<>(nueve, tres);
+	private Edge<Integer> nuevediez = new Edge<>(nueve, diez);
+	private Edge<Integer> nueveonce = new Edge<>(nueve, once);
+	private Edge<Integer> diezonce = new Edge<>(diez, once);
+	private Edge<Integer> diezdoce = new Edge<>(diez, doce);
+	private Edge<Integer> oncedoce = new Edge<>(once, doce);
+	
+	private Edge<Integer> unodos1 = new Edge<>(uno, dos, 1.0);
+	private Edge<Integer> unotres1 = new Edge<>(uno, tres, 1.0);
+	private Edge<Integer> unocuatro3 = new Edge<>(uno, cuatro, 3.0);
+	private Edge<Integer> dostres1 = new Edge<>(dos, tres, 1.0);
+	private Edge<Integer> trescuatro2 = new Edge<>(tres, cuatro, 2.0);
+	private Edge<Integer> trescinco4 = new Edge<>(tres, cinco, 4.0);
+	private Edge<Integer> cincoseis2 = new Edge<>(cinco, seis, 2.0);
+	private Edge<Integer> cincosiete2 = new Edge<>(cinco, siete, 2.0);
+	private Edge<Integer> seissiete1 = new Edge<>(seis, siete, 1.0);
 	
 	@Before
     public void setUp() {
@@ -290,5 +321,68 @@ public class GraphAlgorithmsTest {
 			set.add(components.get(vertex));
 		}
         assertEquals((Integer)2, set.cardinal());
+	}
+	
+	@Test
+	public void testTopologicalSort() {
+		g1.addVertex(uno);
+        g1.addVertex(dos);
+        g1.addVertex(tres);
+        g1.addVertex(cuatro);
+        g1.addVertex(cinco);
+        g1.addVertex(seis);
+        g1.addVertex(siete);
+        g1.addVertex(ocho);
+        g1.addVertex(nueve);
+        g1.addVertex(diez);
+        g1.addVertex(once);
+        g1.addVertex(doce);
+        g1.addEdge(unodos);
+        g1.addEdge(unotres);
+        g1.addEdge(unocuatro);
+        g1.addEdge(unocinco);
+        g1.addEdge(unoseis);
+        g1.addEdge(trescinco);
+        g1.addEdge(cincoseis);
+        g1.addEdge(cincosiete);
+        g1.addEdge(seisocho);
+        g1.addEdge(nuevetres);
+        g1.addEdge(nuevediez);
+        g1.addEdge(nueveonce);
+        g1.addEdge(diezonce);
+        g1.addEdge(diezdoce);
+        g1.addEdge(oncedoce);
+        
+        IList<Vertex<Integer>> sort = g1.topologicalSort();
+        assertEquals((Integer)12, sort.size());
+        String result =
+        		sort.toString().replaceFirst("org.jomaveger.structures.LinkedList", "");
+        assertEquals("[(1,10), (9,90), (2,20), (4,40), (3,30), (10,100), (5,50), (11,110), (6,60), (7,70), (12,120), (8,80), ]", result);
+	}
+	
+	@Test
+	public void testPrim() {
+		GraphAlgorithms<Integer> g2;
+		g2 = new GraphAlgorithms<>(false, true);
+		g2.addVertex(uno);
+        g2.addVertex(dos);
+        g2.addVertex(tres);
+        g2.addVertex(cuatro);
+        g2.addVertex(cinco);
+        g2.addVertex(seis);
+        g2.addVertex(siete);
+        
+        g2.addEdge(unodos1);
+        g2.addEdge(unotres1);
+        g2.addEdge(unocuatro3);
+        g2.addEdge(dostres1);
+        g2.addEdge(trescuatro2);
+        g2.addEdge(trescinco4);
+        g2.addEdge(cincoseis2);
+        g2.addEdge(cincosiete2);
+        g2.addEdge(seissiete1);
+        
+        CostPath<Integer> prim = g2.prim(uno);
+        assertEquals((Double)11.0, prim.cost);
 	}
 }
