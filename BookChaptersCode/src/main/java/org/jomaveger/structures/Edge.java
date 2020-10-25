@@ -1,7 +1,6 @@
 package org.jomaveger.structures;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 import org.jomaveger.lang.dbc.Contract;
 
@@ -10,6 +9,9 @@ public class Edge<T> implements Comparable<Edge<T>>, Serializable {
 	private Vertex<T> orig;
 	private Vertex<T> dest;
 	private double weight;
+	
+	private int tiebreaker;
+    private static int nextTiebreaker = 0;
 	
 	public Edge(Vertex<T> v, Vertex<T> w) {
 		this(v, w, Double.NaN);
@@ -20,6 +22,9 @@ public class Edge<T> implements Comparable<Edge<T>>, Serializable {
 		this.orig = v;
 		this.dest = w;
 		this.weight = weight;
+		
+		if (!Double.isNaN(weight))
+			tiebreaker = nextTiebreaker++;
 	}
 
 	public Vertex<T> getOrig() {
@@ -48,7 +53,12 @@ public class Edge<T> implements Comparable<Edge<T>>, Serializable {
 
 	@Override
 	public int compareTo(Edge<T> that) {
-		return Double.compare(this.weight, that.weight);
+		int res = Double.compare(this.weight, that.weight);
+		
+		if (res == 0)
+			res = tiebreaker - that.tiebreaker;
+		
+		return res;
 	}
 	
 	@Override
@@ -63,34 +73,5 @@ public class Edge<T> implements Comparable<Edge<T>>, Serializable {
 
         string.append("]");
         return string.toString();
-	}
-	
-	@Override
-	public boolean equals(Object otherObject) {
-		if (this == otherObject) return true;
-
-        if (otherObject == null
-                || this.getClass() != otherObject.getClass())
-            return false;
-
-        Edge<T> that = (Edge<T>) otherObject;
-        
-        if (!Objects.equals(this.orig, that.orig))
-            return false;
-        
-        if (!Objects.equals(this.dest, that.dest))
-            return false;
-
-        return Objects.equals(this.weight, that.weight);
-	}
-	
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + orig.hashCode();
-		result = prime * result + dest.hashCode();
-		result = prime * result + Double.valueOf(weight).hashCode();
-		return result;
 	}
 }

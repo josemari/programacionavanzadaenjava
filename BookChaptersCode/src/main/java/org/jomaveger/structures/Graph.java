@@ -28,7 +28,7 @@ public class Graph<T> implements IGraph<T>, Serializable {
         Contract.invariant(checkInvariant());
 	}
 	
-	private int search(Vertex<T> v) {
+	protected int search(Vertex<T> v) {
 		return vertex.indexOf(v);
 	}
 
@@ -128,7 +128,7 @@ public class Graph<T> implements IGraph<T>, Serializable {
 		Contract.invariant(checkInvariant());
 		Contract.require(v != null);
 		boolean resul = (this.search(v) != -1);
-		Contract.ensure(this.search(v) != -1);
+		Contract.ensure(resul == (this.search(v) != -1));
 		Contract.invariant(checkInvariant());
 		return resul;
 	}

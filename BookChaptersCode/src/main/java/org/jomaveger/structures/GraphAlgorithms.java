@@ -3,6 +3,8 @@ package org.jomaveger.structures;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
+import org.jomaveger.lang.dbc.Contract;
+
 public class GraphAlgorithms<T> extends Graph<T> {
 	
 	public GraphAlgorithms() {
@@ -156,6 +158,17 @@ public class GraphAlgorithms<T> extends Graph<T> {
 		return adj;
 	}
 	
+	public Edge<T> getEdge(Vertex<T> v, Vertex<T> w) {
+		int vIndex = this.search(v);
+		IList<Edge<T>> eg = edges.get(vIndex);
+		Edge<T> result = null;
+		for (Edge<T> edge : eg) {
+			if (edge.getOrig().equals(v) && edge.getDest().equals(w))
+				result = edge;
+		}
+		return result;
+	}
+	
 	public ITable<Vertex<T>, Integer> stronglyConnectedComponents(Vertex<T> v) {
 		int k = 0; int[] c = {0};
 		ITable<Vertex<T>, Integer> path = new LinkedTable<>();
@@ -261,59 +274,183 @@ public class GraphAlgorithms<T> extends Graph<T> {
 		return tsort;
 	}
 	
-	public CostPath<T> prim(Vertex<T> v) {
-		Queue<Edge<T>> pq = new PriorityQueue<>();
+	public CostPath<T> kruskal(Vertex<T> v) {
 		
-		IList<Edge<T>> mst = new LinkedList<>();
-		ITable<Vertex<T>, Boolean> visitedVertex = new LinkedTable<>();
-		for (Vertex<T> vertex : vertex) {
-			visitedVertex.set(vertex, false);
-		}
-		
-		int count = 0;
-		Double wmst = 0.0;
-		
-		visitedVertex.set(v, true);
-		for (Edge<T> edge : getAdj(v)) {
-			pq.add(edge);
-		}
-		
-		while (!pq.isEmpty()) {
-			if (count == vertex.size() - 1) {
-				break;
-			}
-			
-			Edge<T> e = pq.remove();
-			Vertex<T> u = e.getOrig();
-			Vertex<T> w;
-			if (visitedVertex.get(u) == true) {
-				w = e.getDest();
-			} else {
-				w = u;
-			}
-			
-			if (visitedVertex.get(w) == true) {
-				continue;
-			}
-			
-			visitedVertex.set(w, true);
-			wmst += e.getWeight();
-			mst.addLast(e);
-			count++;
-			
-			for (Edge<T> e2 : getAdj(w)) {
-				Vertex<T> s = e2.getDest();
-				
-				if (visitedVertex.get(s) == false) {
-					pq.add(e2);	
-				}
-			}
-		}
+		GraphAlgorithms<T> result = new GraphAlgorithms<T>();
 		
 		CostPath<T> cp = new CostPath<>();
-        cp.cost = wmst;
-        cp.eList = mst;
+        cp.cost = 0.0;
+        cp.result = result;
+		
+        double cost = 0.0;
+        
+        if (numVertex() <= 1)
+        	return cp;
+        
+        IList<Edge<T>> edges = getEdges();
+        
+        IList<Edge<T>> sort = IBinarySearchTree.sort(edges);
+        
+        UnionFind<Vertex<T>> unionFind = new UnionFind<>();
+        
+        for (Vertex<T> u : vertex)
+            unionFind.add(u);
+
+        for (Vertex<T> u : vertex)
+            result.addVertex(u);
+
+        int numEdges = 0;
+
+        for (Edge<T> edge: sort) {
+            
+            if (unionFind.find(edge.getOrig()) == unionFind.find(edge.getDest()))
+                continue;
+
+            result.addEdge(getEdge(edge.getOrig(), edge.getDest()));
+            
+            cost += edge.getWeight();
+
+            unionFind.union(edge.getOrig(), edge.getDest());
+
+            if (++numEdges == numVertex()) break;
+        }
+        
+        cp.cost = cost;
+		cp.result = result;
         return cp;
+	}
+	
+	public IList<Edge<T>> getEdges() {
+		IList<Edge<T>> result = new LinkedList<>();
+		
+		ISet<Vertex<T>> used = new Set<>();
+		
+		
+		for (int i = 0; i < vertex.size(); i++) {
+			
+			Vertex<T> v = vertex.get(i);
+			
+			IList<Edge<T>> edges = getAdj(v);
+			
+			for (Edge<T> edge : edges) {
+				if (used.contains(edge.getDest())) continue;
+				
+				result.addLast(edge);
+			}
+			
+			used.add(v);
+		}
+		
+		return result;
+	}
+
+	public CostPath<T> prim(Vertex<T> v) {
+		IPriorityQueue<Vertex<T>> pq = new FibonacciHeap<>();
+		
+		ITable<Vertex<T>, Entry<Vertex<T>>> entries = new ClosedHashTable<>();
+		
+		GraphAlgorithms<T> result = new GraphAlgorithms<T>();
+		
+		CostPath<T> cp = new CostPath<>();
+        cp.cost = 0.0;
+        cp.result = result;
+		
+        double cost = 0.0;
+        
+		if (isEmpty())
+            return cp;
+		
+		result.addVertex(v);
+		
+		addOutgoingEdges(v, pq, result, entries);
+
+		for (int i = 0; i < numVertex() - 1; ++i) {
+			
+            Vertex<T> toAdd = pq.dequeueMin().getValue();
+
+            Vertex<T> endpoint = minCostEndpoint(toAdd, result);
+
+            result.addVertex(toAdd);
+            Edge<T> e = getEdge(toAdd, endpoint);
+            result.addEdge(e);
+            
+            cost += getWeight(e);
+            
+            addOutgoingEdges(toAdd, pq, result, entries);
+        }
+		
+		cp.cost = cost;
+		cp.result = result;
+        return cp;
+	}
+	
+	public ITable<Vertex<T>, Double> dijkstra(Vertex<T> v) {
+		IPriorityQueue<Vertex<T>> pq = new FibonacciHeap<>();
+		
+		ITable<Vertex<T>, Entry<Vertex<T>>> entries = new ClosedHashTable<>();
+		
+		ITable<Vertex<T>, Double> result = new LinkedTable<>();
+		
+		for(Vertex<T> u: vertex) {
+			entries.set(u, pq.enqueue(u, Double.POSITIVE_INFINITY));
+		}
+		
+		pq.decreaseKey(entries.get(v), 0.0);
+
+		while (!pq.isEmpty()) {
+		
+			Entry<Vertex<T>> curr = pq.dequeueMin();
+			
+			result.set(curr.getValue(), curr.getPriority());
+			
+			IList<Edge<T>> edges = this.getAdj(curr.getValue());
+			
+			for (Edge<T> edge : edges) {
+				
+				if (result.contains(edge.getDest())) continue;
+				
+				double pathCost = curr.getPriority() + edge.getWeight();
+				
+				Entry<Vertex<T>> dest = entries.get(edge.getDest());
+				
+				if (Double.compare(pathCost, dest.getPriority()) < 0)
+					pq.decreaseKey(dest, pathCost);
+			}
+		}
+		
+		return result;
+	}
+	
+	private Vertex<T> minCostEndpoint(Vertex<T> toAdd, GraphAlgorithms<T> result) {
+		Vertex<T> endpoint = null;
+        double leastCost = Double.POSITIVE_INFINITY;
+
+        IList<Edge<T>> edges = this.getAdj(toAdd);
+        for (Edge<T> edge : edges) {
+        	
+        	if (!result.hasVertex(edge.getDest())) continue;
+        	
+        	if (Double.compare(edge.getWeight(), leastCost) == 1 || Double.compare(edge.getWeight(), leastCost) == 0) continue;
+        	
+        	endpoint = edge.getDest();
+        	leastCost = edge.getWeight();
+        }
+        
+        return endpoint;
+	}
+
+	private void addOutgoingEdges(Vertex<T> v, IPriorityQueue<Vertex<T>> pq, GraphAlgorithms<T> result, ITable<Vertex<T>, Entry<Vertex<T>>> entries) {
+		IList<Edge<T>> edges = this.getAdj(v);
+		for (Edge<T> edge : edges) {
+			if (result.hasVertex(edge.getDest())) continue;
+			
+			if (!entries.contains(edge.getDest())) {
+				entries.set(edge.getDest(), pq.enqueue(edge.getDest(), edge.getWeight()));
+			}
+			else if (Double.compare(entries.get(edge.getDest()).getPriority(), edge.getWeight()) == 1) {
+				pq.decreaseKey(entries.get(edge.getDest()), edge.getWeight());
+			}
+		}
 	}
 
 	public static class VertexInfo<T> {
@@ -324,7 +461,7 @@ public class GraphAlgorithms<T> extends Graph<T> {
 	
 	public static class CostPath<T> {
 		
-		public IList<Edge<T>> eList;
+		public GraphAlgorithms<T> result;
 		public Double cost;
 	}
 }

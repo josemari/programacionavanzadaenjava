@@ -73,6 +73,17 @@ public class GraphAlgorithmsTest {
 	private Edge<Integer> cincosiete2 = new Edge<>(cinco, siete, 2.0);
 	private Edge<Integer> seissiete1 = new Edge<>(seis, siete, 1.0);
 	
+	private Edge<Integer> unodos30 = new Edge<>(uno, dos, 30);
+	private Edge<Integer> unocinco40 = new Edge<>(uno, cinco, 40);
+	private Edge<Integer> unocuatro50 = new Edge<>(uno, cuatro, 50);
+	private Edge<Integer> unoseis100 = new Edge<>(uno, seis, 100);
+	private Edge<Integer> dostres40 = new Edge<>(dos, tres, 40);
+	private Edge<Integer> tresseis30 = new Edge<>(tres, seis, 30);
+	private Edge<Integer> trescinco10 = new Edge<>(tres, cinco, 10);
+	private Edge<Integer> cincoseis20 = new Edge<>(cinco, seis, 20);
+	private Edge<Integer> cincocuatro20 = new Edge<>(cinco, cuatro, 20);
+	private Edge<Integer> cuatrotres10 = new Edge<>(cuatro, tres, 10);
+	
 	@Before
     public void setUp() {
 		g1 = new GraphAlgorithms<>(true, false);
@@ -384,5 +395,62 @@ public class GraphAlgorithmsTest {
         
         CostPath<Integer> prim = g2.prim(uno);
         assertEquals((Double)11.0, prim.cost);
+	}
+	
+	@Test
+	public void testKruskal() {
+		GraphAlgorithms<Integer> g2;
+		g2 = new GraphAlgorithms<>(false, true);
+		g2.addVertex(uno);
+        g2.addVertex(dos);
+        g2.addVertex(tres);
+        g2.addVertex(cuatro);
+        g2.addVertex(cinco);
+        g2.addVertex(seis);
+        g2.addVertex(siete);
+        
+        g2.addEdge(unodos1);
+        g2.addEdge(unotres1);
+        g2.addEdge(unocuatro3);
+        g2.addEdge(dostres1);
+        g2.addEdge(trescuatro2);
+        g2.addEdge(trescinco4);
+        g2.addEdge(cincoseis2);
+        g2.addEdge(cincosiete2);
+        g2.addEdge(seissiete1);
+        
+        CostPath<Integer> kruskal = g2.kruskal(uno);
+        assertEquals((Double)11.0, kruskal.cost);
+	}
+	
+	@Test
+	public void testDijkstra() {
+		GraphAlgorithms<Integer> g2;
+		g2 = new GraphAlgorithms<>(true, true);
+		g2.addVertex(uno);
+        g2.addVertex(dos);
+        g2.addVertex(tres);
+        g2.addVertex(cuatro);
+        g2.addVertex(cinco);
+        g2.addVertex(seis);
+        
+        g2.addEdge(unodos30);
+        g2.addEdge(unocinco40);
+        g2.addEdge(unocuatro50);
+        g2.addEdge(unoseis100);
+        g2.addEdge(dostres40);
+        g2.addEdge(tresseis30);
+        g2.addEdge(trescinco10);
+        g2.addEdge(cincoseis20);
+        g2.addEdge(cincocuatro20);
+        g2.addEdge(cuatrotres10);
+        
+        ITable<Vertex<Integer>, Double> dijkstra = g2.dijkstra(uno);
+        assertTrue(Double.compare(dijkstra.get(uno), 0.0) == 0);
+        assertTrue(Double.compare(dijkstra.get(dos), 30.0) == 0);
+        assertTrue(Double.compare(dijkstra.get(tres), 60.0) == 0);
+        assertTrue(Double.compare(dijkstra.get(cuatro), 50.0) == 0);
+        assertTrue(Double.compare(dijkstra.get(cinco), 40.0) == 0);
+        assertTrue(Double.compare(dijkstra.get(seis), 60.0) == 0);
 	}
 }
