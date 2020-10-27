@@ -453,4 +453,35 @@ public class GraphAlgorithmsTest {
         assertTrue(Double.compare(dijkstra.get(cinco), 40.0) == 0);
         assertTrue(Double.compare(dijkstra.get(seis), 60.0) == 0);
 	}
+	
+	@Test
+	public void testBellmanFord() {
+		GraphAlgorithms<Integer> g2;
+		g2 = new GraphAlgorithms<>(true, true);
+		g2.addVertex(uno);
+        g2.addVertex(dos);
+        g2.addVertex(tres);
+        g2.addVertex(cuatro);
+        g2.addVertex(cinco);
+        g2.addVertex(seis);
+        
+        g2.addEdge(unodos30);
+        g2.addEdge(unocinco40);
+        g2.addEdge(unocuatro50);
+        g2.addEdge(unoseis100);
+        g2.addEdge(dostres40);
+        g2.addEdge(tresseis30);
+        g2.addEdge(trescinco10);
+        g2.addEdge(cincoseis20);
+        g2.addEdge(cincocuatro20);
+        g2.addEdge(cuatrotres10);
+        
+        ITable<Vertex<Integer>, Double> bellmanFord = g2.bellmanFord(uno);
+        assertTrue(Double.compare(bellmanFord.get(uno), 0.0) == 0);
+        assertTrue(Double.compare(bellmanFord.get(dos), 30.0) == 0);
+        assertTrue(Double.compare(bellmanFord.get(tres), 60.0) == 0);
+        assertTrue(Double.compare(bellmanFord.get(cuatro), 50.0) == 0);
+        assertTrue(Double.compare(bellmanFord.get(cinco), 40.0) == 0);
+        assertTrue(Double.compare(bellmanFord.get(seis), 60.0) == 0);
+	}
 }

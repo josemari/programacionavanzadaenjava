@@ -421,6 +421,46 @@ public class GraphAlgorithms<T> extends Graph<T> {
 		return result;
 	}
 	
+	public ITable<Vertex<T>, Double> bellmanFord(Vertex<T> v) {
+		ITable<Vertex<T>, Double> result = new LinkedTable<>();
+		for (Vertex<T> u: vertex) {
+			result.set(u, Double.POSITIVE_INFINITY);
+		}
+		result.set(v, 0.0);
+		
+		
+		ITable<Vertex<T>, Double> scratch = new LinkedTable<>();
+		
+		for (int k = 1; k <= numVertex(); ++k) {
+			
+			putAll(scratch, result);
+			
+			for (Vertex<T> u : vertex) {
+				
+				IList<Edge<T>> edges = this.getAdj(u);
+				
+				for (Edge<T> edge : edges) {
+					scratch.set(edge.getDest(),
+                        Math.min(scratch.get(edge.getDest()), edge.getWeight() + result.get(u)));
+				}
+			}
+			
+			ITable<Vertex<T>, Double> temp = result;
+            result = scratch;
+            scratch = temp;
+		}
+		
+		return result;
+	}
+	
+	private void putAll(ITable<Vertex<T>, Double> scratch, ITable<Vertex<T>, Double> result) {
+		IList<Vertex<T>> keys = result.keyList();
+		for (Vertex<T> vertex : keys) {
+			Double value = result.get(vertex);
+			scratch.set(vertex, value);
+		}		
+	}
+
 	private Vertex<T> minCostEndpoint(Vertex<T> toAdd, GraphAlgorithms<T> result) {
 		Vertex<T> endpoint = null;
         double leastCost = Double.POSITIVE_INFINITY;
