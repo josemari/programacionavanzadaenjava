@@ -1,10 +1,5 @@
 package org.jomaveger.structures;
 
-import java.util.PriorityQueue;
-import java.util.Queue;
-
-import org.jomaveger.lang.dbc.Contract;
-
 public class GraphAlgorithms<T> extends Graph<T> {
 	
 	public GraphAlgorithms() {
@@ -452,6 +447,71 @@ public class GraphAlgorithms<T> extends Graph<T> {
 		
 		return result;
 	}
+	
+	public GraphAlgorithms<T> floydWarshall() {
+		ITable<Vertex<T>, Integer> vertices = enumerateNodes();
+		
+		double[][] values  = new double[vertices.size()][vertices.size()];
+		
+		for (int i = 0; i < vertices.size(); ++i)
+            for (int j = 0; j < vertices.size(); ++j)
+                values[i][j] = Double.POSITIVE_INFINITY;
+		
+		IList<Vertex<T>> vert = vertices.keyList();
+		for (Vertex<T> vertex : vert) {
+			IList<Edge<T>> edges = this.getAdj(vertex);
+			
+			for (Edge<T> e : edges) {
+				values[vertices.get(vertex)][vertices.get(e.getDest())] = e.getWeight();
+			}
+		}
+		
+		for (int i = 0; i < vertices.size(); ++i)
+            values[i][i] = 0.0;
+		
+		double[][] scratch = new double[vertices.size()][vertices.size()];
+        for (int k = 0; k < vertices.size(); ++k) {
+            
+            for (int i = 0; i < vertices.size(); ++i)
+                for (int j = 0; j < vertices.size(); ++j)
+                    scratch[i][j] = Math.min(values[i][j],
+                                             values[i][k] + values[k][j]);
+
+            double[][] temp = values;
+            values = scratch;
+            scratch = values;
+        }
+
+        return distancesToGraph(values, vertices);
+	}
+	
+	private GraphAlgorithms<T> distancesToGraph(double[][] values, ITable<Vertex<T>, Integer> vertices) {
+		GraphAlgorithms<T> result = new GraphAlgorithms<T>(true, true);
+		
+		Vertex<T>[] indexToNode = (Vertex<T>[]) new Vertex[vertices.size()];
+		IList<Vertex<T>> vert = vertices.keyList();
+		for (Vertex<T> vertex : vert) {
+			indexToNode[vertices.get(vertex)] = vertex;
+		}
+        
+		for (Vertex<T> v: indexToNode)
+            result.addVertex(v);
+		
+		for (int i = 0; i < vertices.size(); ++i)
+            for (int j = 0; j < vertices.size(); ++j)
+                result.addEdge(new Edge<>(indexToNode[i], indexToNode[j], values[i][j]));
+		
+		return result;
+	}
+
+	private ITable<Vertex<T>, Integer> enumerateNodes() {
+		ITable<Vertex<T>, Integer> result = new LinkedTable<>();
+
+        for (Vertex<T> vert: vertex)
+            result.set(vert, result.size());
+
+        return result;
+    }
 	
 	private void putAll(ITable<Vertex<T>, Double> scratch, ITable<Vertex<T>, Double> result) {
 		IList<Vertex<T>> keys = result.keyList();

@@ -84,6 +84,11 @@ public class GraphAlgorithmsTest {
 	private Edge<Integer> cincocuatro20 = new Edge<>(cinco, cuatro, 20);
 	private Edge<Integer> cuatrotres10 = new Edge<>(cuatro, tres, 10);
 	
+	private Edge<Integer> unotres2 = new Edge<>(uno, tres, -2.0);
+	private Edge<Integer> dosuno4 = new Edge<>(dos, uno, 4.0);
+	private Edge<Integer> dostres3 = new Edge<>(dos, tres, 3.0);
+	private Edge<Integer> cuatrodos1 = new Edge<>(cuatro, dos, -1.0);
+	
 	@Before
     public void setUp() {
 		g1 = new GraphAlgorithms<>(true, false);
@@ -483,5 +488,71 @@ public class GraphAlgorithmsTest {
         assertTrue(Double.compare(bellmanFord.get(cuatro), 50.0) == 0);
         assertTrue(Double.compare(bellmanFord.get(cinco), 40.0) == 0);
         assertTrue(Double.compare(bellmanFord.get(seis), 60.0) == 0);
+	}
+	
+	@Test
+	public void testFloydWarshall() {
+		GraphAlgorithms<Integer> g2;
+		g2 = new GraphAlgorithms<>(true, true);
+		g2.addVertex(uno);
+        g2.addVertex(dos);
+        g2.addVertex(tres);
+        g2.addVertex(cuatro);
+        
+        g2.addEdge(unotres2);
+        g2.addEdge(dosuno4);
+        g2.addEdge(dostres3);
+        g2.addEdge(cuatrodos1);
+        g2.addEdge(trescuatro2);
+        
+        GraphAlgorithms<Integer> floydWarshall = g2.floydWarshall();
+        
+        Edge<Integer> e = floydWarshall.getEdge(uno, uno);
+        assertTrue(((Double)e.getWeight()).equals(0.0));
+        
+        e = floydWarshall.getEdge(uno, dos);
+        assertTrue(((Double)e.getWeight()).equals(-1.0));
+        
+        e = floydWarshall.getEdge(uno, tres);
+        assertTrue(((Double)e.getWeight()).equals(-2.0));
+        
+        e = floydWarshall.getEdge(uno, cuatro);
+        assertTrue(((Double)e.getWeight()).equals(0.0));
+        
+        e = floydWarshall.getEdge(dos, uno);
+        assertTrue(((Double)e.getWeight()).equals(4.0));
+        
+        e = floydWarshall.getEdge(dos, dos);
+        assertTrue(((Double)e.getWeight()).equals(0.0));
+        
+        e = floydWarshall.getEdge(dos, tres);
+        assertTrue(((Double)e.getWeight()).equals(2.0));
+        
+        e = floydWarshall.getEdge(dos, cuatro);
+        assertTrue(((Double)e.getWeight()).equals(4.0));
+        
+        e = floydWarshall.getEdge(tres, uno);
+        assertTrue(((Double)e.getWeight()).equals(5.0));
+        
+        e = floydWarshall.getEdge(tres, dos);
+        assertTrue(((Double)e.getWeight()).equals(1.0));
+        
+        e = floydWarshall.getEdge(tres, tres);
+        assertTrue(((Double)e.getWeight()).equals(0.0));
+        
+        e = floydWarshall.getEdge(tres, cuatro);
+        assertTrue(((Double)e.getWeight()).equals(2.0));
+        
+        e = floydWarshall.getEdge(cuatro, uno);
+        assertTrue(((Double)e.getWeight()).equals(3.0));
+        
+        e = floydWarshall.getEdge(cuatro, dos);
+        assertTrue(((Double)e.getWeight()).equals(-1.0));
+        
+        e = floydWarshall.getEdge(cuatro, tres);
+        assertTrue(((Double)e.getWeight()).equals(1.0));
+        
+        e = floydWarshall.getEdge(cuatro, cuatro);
+        assertTrue(((Double)e.getWeight()).equals(0.0));
 	}
 }
