@@ -1,5 +1,9 @@
 package org.jomaveger.structures;
 
+import java.util.Arrays;
+
+import org.jomaveger.lang.dbc.Contract;
+
 public class GraphAlgorithms<T> extends Graph<T> {
 	
 	public GraphAlgorithms() {
@@ -551,6 +555,103 @@ public class GraphAlgorithms<T> extends Graph<T> {
 				pq.decreaseKey(entries.get(edge.getDest()), edge.getWeight());
 			}
 		}
+	}
+
+	public int[] coloring(int m) {
+		Contract.require(m > 0);
+		int n = this.numVertex();
+		
+		int[] colors = new int[n];
+		
+		Arrays.fill(colors, 0);
+		
+		if (!graphColoringUtil(m, colors, 0))
+			return null;
+		
+		return colors;
+	}
+	
+	private boolean graphColoringUtil(int m, int[] colors, int v) {
+		if (v == this.numVertex())
+			return true;
+		
+		for (int i = 1; i <= m; i++) {
+			
+			if (isSafe(colors, v, i)) {
+				
+				colors[v] = i;
+				
+				if (graphColoringUtil(m, colors, v + 1))
+					return true;
+				
+				colors[v] = 0;
+			}
+		}
+		
+		return false;
+	}
+
+	private boolean isSafe(int[] colors, int v, int cr) {
+		for (int i = 0; i < this.numVertex(); i++) {
+			if (this.hEdge(v, i)  && cr == colors[i])
+				return false;
+		}
+		return true;
+	}
+
+	private boolean hEdge(int v, int i) {
+		Vertex<T> u = vertex.get(v);
+		Vertex<T> w = vertex.get(i);
+		return getEdge(u, w) != null;
+	}
+	
+	public int[] hamiltonianCycle() {
+		int[] sol = new int[this.numVertex()];
+		sol[0] = 0;
+		for (int i = 1; i < sol.length; i++) {
+			sol[i] = -1;
+		}
+		
+		if (!solveHamiltonianCycle(sol, 1)) {
+			return null;
+		} else {
+			return sol;
+		}
+	}
+	
+	private boolean solveHamiltonianCycle(int[] sol, int k) {
+		if (k == numVertex()) {
+            if (hEdge(sol[k - 1], sol[0]))
+                return true;
+            else
+                return false;
+        }
+		for (int ver = 1; ver < numVertex(); ver++) {
+			
+            if (check(ver, sol, k)) {
+            	
+                sol[k] = ver;
+                
+                if (solveHamiltonianCycle(sol, k + 1)) return true;
+
+                sol[k] = -1;
+            }
+        }
+		
+		return false;
+	}
+
+	private boolean check(int ver, int[] sol, int k) {
+		
+		if (!hEdge(sol[k - 1], ver))
+            return false;
+		
+        for (int i = 0; i < k; i++) {
+            if (sol[i] == ver)
+                return false;
+        }
+        
+        return true;
 	}
 
 	public static class VertexInfo<T> {

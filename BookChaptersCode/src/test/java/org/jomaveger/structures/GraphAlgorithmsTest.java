@@ -2,6 +2,8 @@ package org.jomaveger.structures;
 
 import static org.junit.Assert.*;
 
+import java.util.List;
+
 import org.jomaveger.structures.GraphAlgorithms.CostPath;
 import org.junit.After;
 import org.junit.Before;
@@ -42,13 +44,22 @@ public class GraphAlgorithmsTest {
 	
 	private Edge<Integer> unodos = new Edge<>(uno, dos);
 	private Edge<Integer> dostres = new Edge<>(dos, tres);
+	private Edge<Integer> doscuatro = new Edge<>(dos, cuatro);
 	private Edge<Integer> doscinco = new Edge<>(dos, cinco);
 	private Edge<Integer> unocuatro = new Edge<>(uno, cuatro);
 	private Edge<Integer> cuatrocinco = new Edge<>(cuatro, cinco);
 	private Edge<Integer> tresdos = new Edge<>(tres, dos);
+	private Edge<Integer> trescuatro = new Edge<>(tres, cuatro);
 	private Edge<Integer> unotres = new Edge<>(uno, tres);
 	private Edge<Integer> cincouno = new Edge<>(cinco, uno);
 	private Edge<Integer> cincotres = new Edge<>(cinco, tres);
+	private Edge<Integer> cincocuatro = new Edge<>(cinco, cuatro);
+	
+	private Edge<Integer> tresseis = new Edge<>(tres, seis);
+	private Edge<Integer> seissiete = new Edge<>(seis, siete);
+	private Edge<Integer> sieteocho = new Edge<>(siete, ocho);
+	private Edge<Integer> sieteuno = new Edge<>(siete, uno);
+	private Edge<Integer> ochodos = new Edge<>(ocho, dos);
 	
 	private Edge<Integer> unocinco = new Edge<>(uno, cinco);
 	private Edge<Integer> unoseis = new Edge<>(uno, seis);
@@ -554,5 +565,71 @@ public class GraphAlgorithmsTest {
         
         e = floydWarshall.getEdge(cuatro, cuatro);
         assertTrue(((Double)e.getWeight()).equals(0.0));
+	}
+	
+	@Test
+	public void testColoring() {
+		GraphAlgorithms<Integer> g2;
+		g2 = new GraphAlgorithms<>(false, false);
+		g2.addVertex(uno);
+        g2.addVertex(dos);
+        g2.addVertex(tres);
+        g2.addVertex(cuatro);
+        g2.addVertex(cinco);
+        
+        g2.addEdge(unodos);
+        g2.addEdge(unotres);
+        
+        g2.addEdge(dostres);
+        g2.addEdge(doscuatro);
+        
+        g2.addEdge(trescuatro);
+                
+        g2.addEdge(cincocuatro);
+        
+        int[] colors = g2.coloring(3);
+        assertNotNull(colors);
+        assertTrue(colors[0] == 1);
+        assertTrue(colors[1] == 2);
+        assertTrue(colors[2] == 3);
+        assertTrue(colors[3] == 1);
+        assertTrue(colors[4] == 2);
+    }
+	
+	@Test
+	public void testHamiltonianCycle() {
+		GraphAlgorithms<Integer> g2;
+		g2 = new GraphAlgorithms<>(false, false);
+		g2.addVertex(uno);
+        g2.addVertex(dos);
+        g2.addVertex(tres);
+        g2.addVertex(cuatro);
+        g2.addVertex(cinco);
+        g2.addVertex(seis);
+        g2.addVertex(siete);
+        g2.addVertex(ocho);
+        
+        g2.addEdge(unodos);
+        g2.addEdge(unotres);
+        g2.addEdge(dostres);
+        g2.addEdge(trescuatro);
+        g2.addEdge(tresseis);
+        g2.addEdge(cuatrocinco);
+        g2.addEdge(cincoseis);
+        g2.addEdge(seissiete);
+        g2.addEdge(sieteocho);
+        g2.addEdge(sieteuno);
+        g2.addEdge(ochodos);
+        
+        int[] path = g2.hamiltonianCycle();
+        assertNotNull(path);
+        assertTrue(path[0] == 0);
+        assertTrue(path[1] == 1);
+        assertTrue(path[2] == 7);
+        assertTrue(path[3] == 6);
+        assertTrue(path[4] == 5);
+        assertTrue(path[5] == 4);
+        assertTrue(path[6] == 3);
+        assertTrue(path[7] == 2);
 	}
 }
